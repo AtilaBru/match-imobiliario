@@ -1,0 +1,3517 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Match Imobiliário — MVP</title>
+<meta name="theme-color" content="#1F3864">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Match Imobiliário">
+<meta name="description" content="Qualifique leads e encontre lançamentos compatíveis em segundos.">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Match%20Imobili%C3%A1rio%22%2C%22short_name%22%3A%22Match%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231F3864%22%2C%22theme_color%22%3A%22%231F3864%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2512%25212%25212'%253E%253Crect%2520width%3D'192'%2520height%3D'192'%2520fill%3D'%25231F3864'%252F%253E%253Ctext%2520x%3D'96'%2520y%3D'124'%2520font-family%3D'Arial'%2520font-weight%3D'bold'%2520font-size%3D'80'%2520fill%3D'white'%2520text-anchor%3D'middle'%253EMI%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2512%25212%25212'%253E%253Crect%2520width%3D'512'%2520height%3D'512'%2520fill%3D'%25231F3864'%252F%253E%253Ctext%2520x%3D'256'%2520y%3D'330'%2520font-family%3D'Arial'%2520font-weight%3D'bold'%2520font-size%3D'210'%2520fill%3D'white'%2520text-anchor%3D'middle'%253EMI%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<style>
+/* Skip artifact shell — fixed styles served beside every artifact.
+   Tokens, utilities and components (basecoat 1.0 markup, no CDN); artifacts
+   override --accent for their own identity. */
+:root {
+  color-scheme: light dark;
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #000);
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #14171f;
+  --text-muted: #5b6472;
+  --border: rgba(20, 23, 31, 0.10);
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(20, 23, 31, 0.08);
+  --space: 16px;
+  --success: #0a7a35;
+  --danger: #c0262d;
+  --warning: #8a5300;
+}
+/* Theme resolution. Without data-theme the viewer's system preference decides,
+   as it always did. With it, the artifact's own choice wins in BOTH directions:
+   a page that hardcodes one palette must not be handed the opposite set of
+   tokens by the machine it happens to be opened on. The dark values appear
+   twice because a media query cannot be folded into a selector list.
+   The attribute sits inside :where() so these blocks keep the specificity of a
+   bare :root — the page's own <style> is linked after this file and must go on
+   overriding any token it wants, exactly as it could before. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+    --bg: #101318;
+    --surface: #181c23;
+    --text: #eef1f6;
+    --text-muted: #9aa4b2;
+    --border: rgba(238, 241, 246, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --success: #4ade80;
+    --danger: #f87171;
+    --warning: #fbbf24;
+  }
+}
+:root:where([data-theme="dark"]) {
+  color-scheme: dark;
+  --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bg: #101318;
+  --surface: #181c23;
+  --text: #eef1f6;
+  --text-muted: #9aa4b2;
+  --border: rgba(238, 241, 246, 0.12);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --success: #4ade80;
+  --danger: #f87171;
+  --warning: #fbbf24;
+}
+:root:where([data-theme="light"]) { color-scheme: light; }
+/* Pages generated before the shell had its own components still link the
+   basecoat CDN, which reads its own tokens and switches theme only on a
+   .dark class. Bridged to the shell's, whatever of it those pages use takes
+   the page's accent and follows the declared theme. Its --accent token is a
+   hover tint, renamed in its theme as --color-accent; the shell's --accent is
+   the brand colour, so the tint is derived from it here. */
+:root {
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-contrast);
+  --secondary: color-mix(in srgb, var(--text) 7%, var(--surface));
+  --secondary-foreground: var(--text);
+  --muted: color-mix(in srgb, var(--text) 5%, var(--surface));
+  --muted-foreground: var(--text-muted);
+  --color-accent: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  --color-accent-foreground: var(--text);
+  --destructive: var(--danger);
+  --input: var(--border);
+  --ring: var(--accent);
+}
+* { box-sizing: border-box; }
+/* The reset the pages were written against: they all linked basecoat, which
+   ships Tailwind's. Its components now live here, so the reset does too. */
+*, ::before, ::after, ::backdrop { margin: 0; padding: 0; border: 0 solid; }
+/* Preflight's rule too: without it a component class that sets display
+   (.alert, .card, .btn…) beats the hidden attribute and shows the element. */
+[hidden]:where(:not([hidden="until-found"])) { display: none !important; }
+.hidden { display: none !important; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+a { color: inherit; text-decoration: inherit; }
+b, strong { font-weight: bolder; }
+ol, ul, menu { list-style: none; }
+svg, video, canvas, iframe { display: block; vertical-align: middle; }
+button, input, select, textarea { color: inherit; background-color: transparent; border-radius: 0; }
+table { border-collapse: collapse; }
+hr { height: 0; color: inherit; border-top-width: 1px; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+
+.shell-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.shell-section { padding: calc(var(--space) * 2) 0; }
+.shell-grid { display: grid; gap: var(--space); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.shell-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--space); }
+.shell-footer { padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; }
+
+.shell-hero { padding: calc(var(--space) * 3) 0 calc(var(--space) * 2); }
+.shell-hero h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance; }
+.shell-hero p { color: var(--text-muted); max-width: 60ch; margin: 0; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space);
+}
+
+.kpi { display: flex; flex-direction: column; gap: 4px; }
+.kpi .kpi-value { font-size: clamp(22px, 2.3vw, 28px); font-weight: 650; line-height: 1.1; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.kpi .kpi-label { font-size: 13px; color: var(--text-muted); }
+.kpi .kpi-delta { font-size: 12.5px; font-weight: 600; }
+.kpi .kpi-delta.up { color: var(--success); }
+.kpi .kpi-delta.down { color: var(--danger); }
+
+table.shell-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.shell-table th {
+  text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600;
+}
+table.shell-table th, table.shell-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); }
+table.shell-table td.num, table.shell-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+.chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin-top: 12px; font-size: 12.5px; color: var(--text-muted); }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.chart-legend b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.muted { color: var(--text-muted); }
+.accent { color: var(--accent-text); }
+.shell-badge, .eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text);
+}
+/* A pill keeps its content width inside flex and grid columns, which would
+   otherwise stretch it across the card; a centred parent still centres it. */
+.shell-badge, .eyebrow, .badge { width: fit-content; max-width: 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .shell-fade { animation: shell-fade 400ms ease both; }
+  @keyframes shell-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+/* Layout and type utilities: what the pages kept spelling in style="".
+   Spacing and type sizes follow Tailwind's scale; there is no Tailwind. */
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.stack { display: flex; flex-direction: column; gap: var(--space); }
+.between { justify-content: space-between; }
+.grow { flex: 1 1 0; min-width: 0; }
+.cols-2, .cols-3, .cols-4, .cols-5 { display: grid; gap: var(--space); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 720px) {
+  .cols-2, .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cols-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1000px) { .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; } .gap-6 { gap: 24px; }
+.m-0 { margin: 0; }
+.mt-1 { margin-top: 4px; } .mt-2 { margin-top: 8px; } .mt-3 { margin-top: 12px; } .mt-4 { margin-top: 16px; } .mt-6 { margin-top: 24px; }
+.mb-1 { margin-bottom: 4px; } .mb-2 { margin-bottom: 8px; } .mb-3 { margin-bottom: 12px; } .mb-4 { margin-bottom: 16px; } .mb-6 { margin-bottom: 24px; }
+.p-2 { padding: 8px; } .p-3 { padding: 12px; } .p-4 { padding: 16px; } .p-6 { padding: 24px; }
+.text-xs { font-size: 12px; } .text-sm { font-size: 14px; } .text-base { font-size: 16px; }
+.text-lg { font-size: 18px; } .text-xl { font-size: 20px; line-height: 1.35; }
+.text-2xl { font-size: 24px; line-height: 1.25; } .text-3xl { font-size: 30px; line-height: 1.2; }
+.font-medium { font-weight: 500; } .font-semibold { font-weight: 600; } .font-bold { font-weight: 700; }
+.text-right { text-align: right; } .text-center { text-align: center; }
+.nowrap { white-space: nowrap; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
+.w-full { width: 100%; }
+.text-success { color: var(--success); } .text-danger { color: var(--danger); } .text-warning { color: var(--warning); }
+
+/* Components, with basecoat 1.0 markup (variants and sizes are data
+   attributes) and the shell tokens, so a page needs neither component CSS
+   nor a CSS framework. An older page that also links basecoat gets these
+   rules after it, over the same properties. */
+button, input, select, textarea { font: inherit; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 36px; padding: 0 14px; border: 1px solid transparent; border-radius: calc(var(--radius) - 2px);
+  background: var(--accent); color: var(--accent-contrast);
+  font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.btn:hover { background: color-mix(in srgb, var(--accent) 86%, #000); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+.btn[data-variant="secondary"] { background: color-mix(in srgb, var(--text) 8%, var(--surface)); color: var(--text); }
+.btn[data-variant="secondary"]:hover { background: color-mix(in srgb, var(--text) 14%, var(--surface)); }
+.btn[data-variant="outline"] { background: var(--surface); color: var(--text); border-color: var(--border); }
+.btn[data-variant="ghost"] { background: transparent; color: var(--text); }
+.btn[data-variant="outline"]:hover, .btn[data-variant="ghost"]:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.btn[data-variant="destructive"] { background: var(--danger); color: var(--bg); }
+.btn[data-variant="destructive"]:hover { background: color-mix(in srgb, var(--danger) 86%, var(--text)); }
+.btn[data-variant="link"] { height: auto; padding: 0; background: none; color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.btn[data-size="sm"] { height: 30px; padding: 0 10px; font-size: 13px; }
+.btn[data-size="lg"] { height: 42px; padding: 0 20px; font-size: 15px; }
+.btn[data-size="icon"] { width: 36px; padding: 0; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+  border: 1px solid transparent; border-radius: 999px; background: var(--accent); color: var(--accent-contrast);
+  font-size: 12px; font-weight: 600; line-height: 1.5; white-space: nowrap;
+}
+.badge[data-variant="secondary"] { background: color-mix(in srgb, var(--text) 8%, var(--surface)); color: var(--text); }
+.badge[data-variant="outline"] { background: transparent; color: var(--text); border-color: var(--border); }
+.badge[data-variant="destructive"] { background: color-mix(in srgb, var(--danger) 14%, var(--surface)); color: var(--danger); }
+
+.alert {
+  display: grid; gap: 4px; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); font-size: 14px;
+}
+.alert h2, .alert h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.alert p, .alert section { margin: 0; color: var(--text-muted); }
+.alert[data-variant="destructive"] { border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); background: color-mix(in srgb, var(--danger) 7%, var(--surface)); color: var(--danger); }
+
+.card {
+  display: flex; flex-direction: column; gap: 16px; padding: 20px 0;
+  border: 1px solid var(--border); border-radius: calc(var(--radius) + 2px);
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow);
+}
+.card > header, .card > section, .card > footer { padding: 0 20px; }
+.card > header { display: grid; gap: 4px; }
+.card > header h2, .card > header h3 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.3; }
+.card > header p { margin: 0; color: var(--text-muted); font-size: 14px; }
+.card > footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.input {
+  width: 100%; min-height: 36px; padding: 6px 12px; border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);
+  background: var(--surface); color: var(--text); font-size: 14px;
+}
+textarea.input { min-height: 84px; resize: vertical; }
+.input::placeholder { color: var(--text-muted); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 14px; font-weight: 500; }
+.field [role="alert"] { color: var(--danger); font-size: 13px; }
+
+dialog.dialog {
+  width: min(520px, calc(100vw - 32px)); max-height: calc(100vh - 32px); margin: auto; padding: 0;
+  border: 1px solid var(--border); border-radius: calc(var(--radius) + 4px);
+  background: var(--surface); color: var(--text); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+dialog.dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+dialog.dialog > div { display: grid; gap: 16px; padding: 24px; }
+dialog.dialog header { display: grid; gap: 4px; }
+dialog.dialog header h2 { margin: 0; font-size: 18px; font-weight: 600; }
+dialog.dialog header p { margin: 0; color: var(--text-muted); font-size: 14px; }
+dialog.dialog footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+.tabs { display: grid; gap: 12px; }
+.tabs > [role="tablist"] {
+  display: inline-flex; gap: 4px; width: fit-content; max-width: 100%; padding: 4px; overflow-x: auto;
+  border-radius: var(--radius); background: color-mix(in srgb, var(--text) 6%, var(--surface));
+}
+.tabs [role="tab"] {
+  padding: 6px 12px; border: 0; border-radius: calc(var(--radius) - 4px); background: transparent;
+  color: var(--text-muted); font-size: 14px; font-weight: 500; white-space: nowrap; cursor: pointer;
+}
+.tabs [role="tab"][aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.tabs [role="tabpanel"][hidden] { display: none; }
+
+.accordion > details { border-bottom: 1px solid var(--border); }
+.accordion > details > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 0; font-weight: 500; list-style: none; cursor: pointer;
+}
+.accordion > details > summary::-webkit-details-marker { display: none; }
+.accordion > details > summary::after { content: "+"; color: var(--text-muted); font-size: 18px; line-height: 1; }
+.accordion > details[open] > summary::after { content: "\2212"; }
+.accordion > details > :not(summary) { margin: 0 0 14px; color: var(--text-muted); }
+
+.toaster {
+  position: fixed; right: 16px; bottom: 16px; z-index: 50; display: flex; flex-direction: column-reverse; gap: 8px;
+  width: min(360px, calc(100vw - 32px)); pointer-events: none;
+}
+.toaster .toast { pointer-events: auto; transition: opacity 200ms ease, transform 200ms ease; }
+.toaster .toast[aria-hidden="true"] { opacity: 0; transform: translateY(8px); }
+.toaster .toast-content {
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); font-size: 13px;
+}
+.toaster .toast-content h2 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+.toaster .toast-content p { margin: 0; color: var(--text-muted); }
+
+/* skipUI building blocks. */
+.skip-table-search { max-width: 320px; margin-bottom: 12px; }
+.skip-table-wrap { overflow-x: auto; }
+table.shell-table th[data-sort] { cursor: pointer; user-select: none; }
+table.shell-table th[aria-sort="ascending"]::after { content: " \25B2"; font-size: 9px; }
+table.shell-table th[aria-sort="descending"]::after { content: " \25BC"; font-size: 9px; }
+table.shell-table td.skip-table-empty { color: var(--text-muted); text-align: center; padding: 24px 0; }
+.skip-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; font-size: 13px; color: var(--text-muted); }
+.toaster .toast[data-type="success"] .toast-content { border-left: 3px solid var(--success); }
+.toaster .toast[data-type="error"] .toast-content { border-left: 3px solid var(--danger); }
+
+</style>
+<script>
+/* Skip artifact shell — fixed helpers served beside every artifact. */
+(function () {
+  "use strict";
+
+  var fmt = {
+    num: function (v, opts) { return new Intl.NumberFormat("pt-BR", opts || {}).format(v); },
+    brl: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v); },
+    pct: function (v) { return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(v); },
+    compact: function (v) { return new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(v); },
+    brlCompact: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", notation: "compact", maximumFractionDigits: 1 }).format(v); }
+  };
+
+  // axisLabels formats the five y-axis ticks in the unit the chart declared
+  // (percent, BRL or plain numbers), compact so long values never clip, with
+  // the fewest decimals that still print every tick exactly (1,5 mi, not 2 mi).
+  function axisLabels(format, ticks) {
+    function at(digits) {
+      var opts = { notation: "compact", maximumFractionDigits: digits };
+      if (format === "pct") opts = { style: "percent", maximumFractionDigits: digits };
+      else if (format === "brl") opts = { style: "currency", currency: "BRL", notation: "compact", maximumFractionDigits: digits };
+      var nf = new Intl.NumberFormat("pt-BR", opts);
+      return ticks.map(function (t) { return nf.format(t); });
+    }
+    for (var digits = 0; digits < 2; digits++) {
+      if (at(digits).join("|") === at(digits + 1).join("|")) return at(digits);
+    }
+    return at(2);
+  }
+
+  // yAxisPad formats the ticks and measures the left padding they need from
+  // the longest one; drawYAxis then draws the grid and the labels.
+  function yAxisPad(format, max) {
+    var labels = axisLabels(format, [0, max / 4, max / 2, (max * 3) / 4, max]);
+    var longest = labels.reduce(function (m, l) { return Math.max(m, l.length); }, 0);
+    return { labels: labels, padL: Math.max(40, Math.round(longest * 6.2) + 14) };
+  }
+  function drawYAxis(svg, axis, W, padR, padT, plotH) {
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: axis.padL, y1: gy, x2: W - padR, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: axis.padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axis.labels[g];
+      svg.appendChild(lbl);
+    }
+  }
+
+  // xLabelStep: show every k-th category label so labels never overlap, and
+  // always the last one (counted back from the end).
+  function xLabelStep(labels, step) {
+    var longest = labels.reduce(function (m, l) { return Math.max(m, String(l).length); }, 0);
+    return Math.max(1, Math.ceil((longest * 6.4 + 8) / Math.max(step, 1)));
+  }
+  function drawXLabel(svg, text, x, y, W, edgeGuard) {
+    var anchor = "middle";
+    var half = String(text).length * 3.2;
+    if (edgeGuard && x - half < 4) anchor = "start";
+    if (edgeGuard && x + half > W - 4) anchor = "end";
+    var tx = svgEl("text", { x: x, y: y, "text-anchor": anchor, "font-size": 11, fill: mutedColor() });
+    tx.textContent = text;
+    svg.appendChild(tx);
+  }
+  // categoryLines fits a bar's category name in its slot: one line, two lines
+  // split at a space, or cut with "…". A bar without its name can't be read, so
+  // categories are never skipped; null when the slot is too narrow for that.
+  function categoryLines(text, slot) {
+    var fit = Math.floor((slot - 6) / 6.4);
+    var s = String(text);
+    if (fit < 4) return null;
+    if (s.length <= fit) return [s];
+    var cut = function (t) { return t.length <= fit ? t : t.slice(0, fit - 1).trimEnd() + "…"; };
+    var best = -1;
+    for (var i = 0; i < s.length; i++) {
+      if (s[i] === " " && (best < 0 || Math.abs(s.length / 2 - i) < Math.abs(s.length / 2 - best))) best = i;
+    }
+    if (best < 0) return [cut(s)];
+    return [cut(s.slice(0, best)), cut(s.slice(best + 1))];
+  }
+  function legend(el, items) {
+    var box = document.createElement("div");
+    box.className = "chart-legend";
+    items.forEach(function (it) {
+      var row = document.createElement("span");
+      var dot = document.createElement("i");
+      dot.style.background = it.color;
+      row.appendChild(dot);
+      row.appendChild(document.createTextNode((it.label || "") + (it.value ? " " : "")));
+      if (it.value) {
+        var v = document.createElement("b");
+        v.textContent = it.value;
+        row.appendChild(v);
+      }
+      box.appendChild(row);
+    });
+    resolve(el).appendChild(box);
+  }
+  var seriesPalette = ["#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4", "#0ea5b7"];
+
+  // format accepts a function OR one of the fmt names ("num" | "brl" | "pct").
+  // A page's function may return nothing or throw: the chart prints its
+  // number instead of taking the rest of the page script down with it.
+  function coerceFormat(spec) {
+    if (typeof spec === "function") {
+      return function (v) {
+        try {
+          var out = spec(v);
+          return out == null ? "" : String(out);
+        } catch (e) {
+          return fmt.num(v);
+        }
+      };
+    }
+    if (typeof spec === "string" && fmt[spec]) return fmt[spec];
+    return function (v) { return fmt.num(v); };
+  }
+
+  function accent() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2563eb";
+  }
+  function mutedColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() || "#5b6472";
+  }
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function frame(el, w, h) {
+    var svg = svgEl("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
+    el = resolve(el);
+    el.innerHTML = "";
+    el.appendChild(svg);
+    return svg;
+  }
+
+  // maxOf guards the axis scale: empty values would give -Infinity (truthy,
+  // so "|| 1" can't catch it) and a non-positive max would flip the chart.
+  // finite reads a chart value as a number, 0 when it is not one (NaN,
+  // Infinity, a stray string), so one bad value cannot blank the axis.
+  function finite(v) {
+    var n = +v;
+    return isFinite(n) ? n : 0;
+  }
+
+  function maxOf(values) {
+    var m = values.length ? Math.max.apply(null, values.map(finite)) : 0;
+    return m > 0 ? m : 1;
+  }
+
+  // labelsFor pads or trims the category names to the n points drawn: pages
+  // pass labels and values of different lengths, and one throw here loses
+  // every section the page renders after the chart.
+  function labelsFor(cfg, n) {
+    var out = [];
+    for (var i = 0; i < n; i++) out.push(cfg.labels && cfg.labels[i] != null ? String(cfg.labels[i]) : "");
+    return out;
+  }
+
+  // niceMax rounds the scale up so the four grid steps land on round values
+  // (1, 1.5, 2, 2.5, 3, 4, 5, 6 or 8 × 10^k) and the tick labels read exactly.
+  function niceMax(max) {
+    var raw = max / 4;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var res = raw / mag;
+    var steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+    var nice = steps.filter(function (s) { return s >= res - 1e-9; })[0];
+    return nice * mag * 4;
+  }
+
+  // bar(el, {labels:[], values:[], color?, format?}) — vertical bar chart.
+  function bar(el, cfg) {
+    var W = 640, H = 280, padB = 30, padT = 12, padR = 12;
+    var max = niceMax(maxOf(cfg.values));
+    var axis = yAxisPad(cfg.format, max);
+    var svg = frame(el, W, H);
+    var n = cfg.values.length;
+    var labels = labelsFor(cfg, n);
+    var plotW = W - axis.padL - padR;
+    var step = plotW / n, bw = Math.min(step * 0.62, 64);
+    var names = labels.map(function (l) { return categoryLines(l, step); });
+    var named = names.every(Boolean);
+    if (named && names.some(function (l) { return l.length > 1; })) padB = 42;
+    var plotH = H - padT - padB;
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    var every = xLabelStep(labels, step);
+    drawYAxis(svg, axis, W, padR, padT, plotH);
+    cfg.values.forEach(function (v, i) {
+      var bh = Math.max(0, (finite(v) / max) * plotH);
+      var x = axis.padL + i * step + (step - bw) / 2;
+      var y = padT + plotH - bh;
+      var r = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: (cfg.colors && cfg.colors[i]) || color });
+      var t = svgEl("title", {});
+      t.textContent = labels[i] + ": " + f(v);
+      r.appendChild(t);
+      svg.appendChild(r);
+      if (named) {
+        names[i].forEach(function (text, li) {
+          drawXLabel(svg, text, x + bw / 2, padT + plotH + 18 + li * 13, W, false);
+        });
+      } else if ((n - 1 - i) % every === 0) {
+        drawXLabel(svg, labels[i], x + bw / 2, H - 10, W, false);
+      }
+    });
+  }
+
+  // line(el, {labels:[], values:[] | series:[{label, values, color?}], color?, format?})
+  // — one line, or several series on one scale with a legend under the chart.
+  function line(el, cfg) {
+    var W = 640, H = 280, padB = 30, padT = 12, padR = 16;
+    var series = cfg.series && cfg.series.length
+      ? cfg.series
+      : [{ label: "", values: cfg.values || [], color: cfg.color }];
+    var all = [];
+    series.forEach(function (s) { all = all.concat(s.values || []); });
+    var max = niceMax(maxOf(all));
+    var axis = yAxisPad(cfg.format, max);
+    var svg = frame(el, W, H);
+    var n = series.reduce(function (m, s) { return Math.max(m, (s.values || []).length); }, 0);
+    var labels = labelsFor(cfg, n);
+    var plotW = W - axis.padL - padR, plotH = H - padT - padB;
+    var f = coerceFormat(cfg.format);
+    drawYAxis(svg, axis, W, padR, padT, plotH);
+    var xs = labels.map(function (_, i) { return axis.padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1)); });
+    var every = xLabelStep(labels, n > 1 ? plotW / (n - 1) : plotW);
+    labels.forEach(function (label, i) {
+      if ((n - 1 - i) % every === 0) drawXLabel(svg, label, xs[i], H - 10, W, true);
+    });
+    var colors = series.map(function (s, si) {
+      return s.color || (si === 0 ? (cfg.color || accent()) : seriesPalette[(si - 1) % seriesPalette.length]);
+    });
+    series.forEach(function (s, si) {
+      var color = colors[si];
+      var pts = (s.values || []).map(function (v, i) { return [xs[i], padT + plotH - (finite(v) / max) * plotH]; });
+      var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+      svg.appendChild(svgEl("path", { d: d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+      pts.forEach(function (p, i) {
+        var c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.5, fill: color });
+        var t = svgEl("title", {});
+        t.textContent = (s.label ? s.label + " · " : "") + labels[i] + ": " + f(s.values[i]);
+        c.appendChild(t);
+        svg.appendChild(c);
+      });
+    });
+    if (series.length > 1) {
+      legend(el, series.map(function (s, si) { return { label: s.label, color: colors[si] }; }));
+    }
+  }
+
+  // donut(el, {labels:[], values:[], colors?, format?, center?, centerLabel?, legend?})
+  // — donut with a short total in the centre (compact, in the declared unit)
+  // and, with legend: true, the labels and shares listed under it.
+  function donut(el, cfg) {
+    var W = 320, H = 280, cx = W / 2, cy = H / 2, R = 92, r = 58;
+    var svg = frame(el, W, H);
+    // At 100% of a wide container the donut outgrows the height pages give
+    // the box and spills over the next section: keep it at its own size.
+    svg.style.maxWidth = W + "px";
+    svg.style.margin = "0 auto";
+    var values = cfg.values.map(finite);
+    var labels = labelsFor(cfg, values.length);
+    var sum = values.reduce(function (a, b) { return a + b; }, 0);
+    var total = sum || 1;
+    var palette = cfg.colors || [accent()].concat(seriesPalette);
+    // The hover keeps the full value; the centre has room for a short one.
+    var full = coerceFormat(cfg.format);
+    var short = typeof cfg.format === "function" ? full : cfg.format === "brl" ? fmt.brlCompact : fmt.compact;
+    var a0 = -Math.PI / 2;
+    values.forEach(function (v, i) {
+      var a1 = a0 + (v / total) * Math.PI * 2;
+      var large = a1 - a0 > Math.PI ? 1 : 0;
+      var p = ["M", cx + R * Math.cos(a0), cy + R * Math.sin(a0),
+        "A", R, R, 0, large, 1, cx + R * Math.cos(a1), cy + R * Math.sin(a1),
+        "L", cx + r * Math.cos(a1), cy + r * Math.sin(a1),
+        "A", r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), "Z"].join(" ");
+      var path = svgEl("path", { d: p, fill: palette[i % palette.length] });
+      var t = svgEl("title", {});
+      t.textContent = labels[i] + ": " + full(v) + " (" + fmt.pct(v / total) + ")";
+      path.appendChild(t);
+      svg.appendChild(path);
+      a0 = a1;
+    });
+    // A share chart has no total worth printing: without its own centre text
+    // the caption alone takes the middle.
+    var text = cfg.center != null ? String(cfg.center) : (cfg.format === "pct" ? "" : short(sum));
+    if (text) {
+      var size = text.length > 9 ? 14 : text.length > 7 ? 17 : 20;
+      var center = svgEl("text", { x: cx, y: cfg.centerLabel ? cy + 1 : cy + 6, "text-anchor": "middle", "font-size": size, "font-weight": 650, fill: "currentColor" });
+      center.textContent = text;
+      svg.appendChild(center);
+    }
+    if (cfg.centerLabel) {
+      var cap = svgEl("text", { x: cx, y: text ? cy + 19 : cy + 5, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      cap.textContent = cfg.centerLabel;
+      svg.appendChild(cap);
+    }
+    if (cfg.legend) {
+      legend(el, labels.map(function (label, i) {
+        return { label: label, color: palette[i % palette.length], value: fmt.pct(values[i] / total) };
+      }));
+    }
+  }
+
+  // ---- Page building blocks: what dashboards and small systems kept
+  // re-implementing — a searchable sortable table, a KPI row, tabs, toasts,
+  // dialogs, saved state and mock data. Every call is opt-in, so a page that
+  // brings its own versions keeps them.
+
+  function resolve(target) {
+    return typeof target === "string" ? document.querySelector(target) : target;
+  }
+
+  function node(tag, className, text) {
+    var el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text != null) el.textContent = text;
+    return el;
+  }
+
+  function isNumberColumn(col) {
+    return col.align === "right" || col.format === "num" || col.format === "brl" || col.format === "pct";
+  }
+
+  function cellText(col, row) {
+    var value = row[col.key];
+    if (value == null) return "";
+    return col.format ? coerceFormat(col.format)(value) : String(value);
+  }
+
+  function compareValues(a, b) {
+    if (typeof a === "number" && typeof b === "number") return a - b;
+    return String(a == null ? "" : a).localeCompare(String(b == null ? "" : b), "pt-BR", { numeric: true });
+  }
+
+  // table(el, {columns, rows, search?, pageSize?, empty?, onRowClick?}) — a
+  // table.shell-table with sortable headers, an optional search box and
+  // pager. A column is {key, label, format?, align?, sortable? (true),
+  // render?(value, row) returning a Node or an HTML string — the page writes
+  // its cell templates as markup}. Plain values are always set as text.
+  // Returns {setRows, rows}.
+  function table(target, cfg) {
+    var root = resolve(target);
+    var cols = cfg.columns || [];
+    var pageSize = cfg.pageSize || 0;
+    var state = { rows: (cfg.rows || []).slice(), query: "", key: null, dir: 1, page: 0 };
+    root.innerHTML = "";
+    if (cfg.search) {
+      var search = node("input", "input skip-table-search");
+      search.type = "search";
+      search.placeholder = typeof cfg.search === "string" ? cfg.search : "Buscar…";
+      search.setAttribute("aria-label", search.placeholder);
+      search.addEventListener("input", function () {
+        state.query = search.value.trim().toLowerCase();
+        state.page = 0;
+        draw();
+      });
+      root.appendChild(search);
+    }
+    var tableEl = node("table", "shell-table");
+    var headRow = node("tr");
+    var heads = cols.map(function (col) {
+      var th = node("th", isNumberColumn(col) ? "num" : "", col.label == null ? col.key : col.label);
+      th.scope = "col";
+      if (col.sortable !== false) {
+        var toggle = function () {
+          state.dir = state.key === col.key ? -state.dir : 1;
+          state.key = col.key;
+          draw();
+        };
+        th.setAttribute("data-sort", col.key);
+        th.tabIndex = 0;
+        th.addEventListener("click", toggle);
+        th.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+        });
+      }
+      headRow.appendChild(th);
+      return th;
+    });
+    var thead = node("thead");
+    var tbody = node("tbody");
+    var wrap = node("div", "skip-table-wrap");
+    var pager = node("div", "skip-pager");
+    thead.appendChild(headRow);
+    tableEl.appendChild(thead);
+    tableEl.appendChild(tbody);
+    wrap.appendChild(tableEl);
+    root.appendChild(wrap);
+    if (pageSize) root.appendChild(pager);
+
+    function visibleRows() {
+      var rows = state.rows;
+      if (state.query) {
+        rows = rows.filter(function (row) {
+          return cols.some(function (col) { return cellText(col, row).toLowerCase().indexOf(state.query) >= 0; });
+        });
+      }
+      if (state.key) {
+        var key = state.key, dir = state.dir;
+        rows = rows.slice().sort(function (a, b) { return dir * compareValues(a[key], b[key]); });
+      }
+      return rows;
+    }
+
+    function drawRow(row) {
+      var tr = node("tr");
+      cols.forEach(function (col) {
+        var td = node("td", isNumberColumn(col) ? "num" : "");
+        if (!col.render) {
+          td.textContent = cellText(col, row);
+        } else {
+          var content = col.render(row[col.key], row);
+          if (content instanceof Node) td.appendChild(content);
+          else td.innerHTML = content == null ? "" : String(content);
+        }
+        tr.appendChild(td);
+      });
+      // The row stays a row (no role) and takes focus, so a keyboard reaches
+      // the same action; keys pressed on a control inside a cell are its own.
+      if (cfg.onRowClick) {
+        tr.style.cursor = "pointer";
+        tr.tabIndex = 0;
+        tr.addEventListener("click", function () { cfg.onRowClick(row); });
+        tr.addEventListener("keydown", function (e) {
+          if (e.target !== tr || (e.key !== "Enter" && e.key !== " ")) return;
+          e.preventDefault();
+          cfg.onRowClick(row);
+        });
+      }
+      return tr;
+    }
+
+    function pagerButton(label, disabled, step) {
+      var button = node("button", "btn", label);
+      button.type = "button";
+      button.setAttribute("data-variant", "outline");
+      button.setAttribute("data-size", "sm");
+      button.disabled = disabled;
+      button.addEventListener("click", function () { state.page += step; draw(); });
+      return button;
+    }
+
+    function draw() {
+      var rows = visibleRows();
+      heads.forEach(function (th, i) {
+        if (cols[i].key === state.key) th.setAttribute("aria-sort", state.dir > 0 ? "ascending" : "descending");
+        else th.removeAttribute("aria-sort");
+      });
+      var pages = pageSize ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1;
+      state.page = Math.min(state.page, pages - 1);
+      var shown = pageSize ? rows.slice(state.page * pageSize, (state.page + 1) * pageSize) : rows;
+      tbody.innerHTML = "";
+      if (!shown.length) {
+        var empty = node("td", "skip-table-empty", cfg.empty || "Nenhum registro encontrado.");
+        empty.colSpan = cols.length;
+        tbody.appendChild(node("tr")).appendChild(empty);
+      }
+      shown.forEach(function (row) { tbody.appendChild(drawRow(row)); });
+      if (!pageSize) return;
+      pager.innerHTML = "";
+      var from = rows.length ? state.page * pageSize + 1 : 0;
+      pager.appendChild(node("span", "", from + "–" + Math.min(rows.length, (state.page + 1) * pageSize) + " de " + rows.length));
+      var nav = node("div", "row gap-2");
+      nav.appendChild(pagerButton("Anterior", state.page === 0, -1));
+      nav.appendChild(pagerButton("Próxima", state.page >= pages - 1, 1));
+      pager.appendChild(nav);
+    }
+
+    draw();
+    return {
+      setRows: function (rows) { state.rows = rows.slice(); draw(); },
+      rows: visibleRows
+    };
+  }
+
+  // kpis(el, [{label, value, format?, delta?, hint?}]) — KPI cards in a
+  // responsive grid; delta is a fraction (0.12 renders as ▲ 12%).
+  function kpis(target, items) {
+    var root = resolve(target);
+    root.innerHTML = "";
+    root.classList.add("shell-grid");
+    items.forEach(function (item) {
+      var card = node("div", "panel kpi");
+      card.appendChild(node("span", "kpi-label", item.label));
+      // Large money values go compact ("R$ 27,5 mi"): the full amount does
+      // not fit a KPI card at four per row.
+      var kpiFormat = item.format === "brl" && Math.abs(item.value) >= 1e6 ? fmt.brlCompact : (item.format ? coerceFormat(item.format) : null);
+      card.appendChild(node("span", "kpi-value", kpiFormat ? kpiFormat(item.value) : String(item.value)));
+      if (typeof item.delta === "number") {
+        var up = item.delta >= 0;
+        card.appendChild(node("span", "kpi-delta " + (up ? "up" : "down"), (up ? "▲ " : "▼ ") + fmt.pct(Math.abs(item.delta))));
+      }
+      if (item.hint) card.appendChild(node("span", "kpi-label", item.hint));
+      root.appendChild(card);
+    });
+  }
+
+  // badge(text, variant?) — a .badge node for table cells and lists;
+  // variant is "secondary" | "outline" | "destructive" (default: primary).
+  function badge(text, variant) {
+    var el = node("span", "badge", text);
+    if (variant) el.setAttribute("data-variant", variant);
+    return el;
+  }
+
+  // tabs(el) — wires one .tabs block: [role=tab] buttons inside
+  // [role=tablist], each with aria-controls naming its [role=tabpanel].
+  function tabs(target) {
+    var root = resolve(target);
+    var buttons = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+    function select(chosen) {
+      buttons.forEach(function (b) {
+        var on = b === chosen;
+        b.setAttribute("aria-selected", on ? "true" : "false");
+        b.tabIndex = on ? 0 : -1;
+        var panel = document.getElementById(b.getAttribute("aria-controls"));
+        if (panel) panel.hidden = !on;
+      });
+    }
+    buttons.forEach(function (b, i) {
+      b.addEventListener("click", function () { select(b); });
+      b.addEventListener("keydown", function (e) {
+        var step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!step) return;
+        var next = buttons[(i + step + buttons.length) % buttons.length];
+        next.focus();
+        select(next);
+      });
+    });
+    select(buttons.filter(function (b) { return b.getAttribute("aria-selected") === "true"; })[0] || buttons[0]);
+  }
+
+  // toast(message, {type?: "success" | "error", title?, duration?}) — a
+  // .toast in a shared .toaster at the bottom of the page.
+  function toast(message, opts) {
+    opts = opts || {};
+    var toaster = document.querySelector(".toaster") || document.body.appendChild(node("div", "toaster"));
+    var item = node("div", "toast");
+    item.setAttribute("role", opts.type === "error" ? "alert" : "status");
+    item.setAttribute("aria-hidden", "true");
+    if (opts.type) item.setAttribute("data-type", opts.type);
+    var content = node("div", "toast-content");
+    var section = node("section");
+    if (opts.title) section.appendChild(node("h2", "", opts.title));
+    section.appendChild(node("p", "", message));
+    content.appendChild(section);
+    item.appendChild(content);
+    toaster.appendChild(item);
+    requestAnimationFrame(function () { item.setAttribute("aria-hidden", "false"); });
+    setTimeout(function () {
+      item.setAttribute("aria-hidden", "true");
+      setTimeout(function () { item.remove(); }, 400);
+    }, opts.duration || 3000);
+  }
+
+  // Dialogs are native <dialog class="dialog">: a [data-dialog-open="id"]
+  // anywhere opens one, a [data-dialog-close] inside closes it, and a click on
+  // its backdrop closes it too. Plain dialog.showModal()/close() still work.
+  document.addEventListener("click", function (e) {
+    var target = e.target;
+    if (!(target instanceof Element)) return;
+    var opener = target.closest("[data-dialog-open]");
+    if (opener) {
+      var dialog = document.getElementById(opener.getAttribute("data-dialog-open"));
+      if (dialog && dialog.showModal && !dialog.open) dialog.showModal();
+      return;
+    }
+    var closer = target.closest("[data-dialog-close]");
+    if (closer && closer.closest("dialog")) {
+      closer.closest("dialog").close();
+      return;
+    }
+    if (target.tagName === "DIALOG" && target.classList.contains("dialog") && target.open) target.close();
+  });
+
+  // store(key, fallback) — JSON state in localStorage that never throws (a
+  // private window or a full quota falls back to memory): {get, set, update}.
+  function store(key, fallback) {
+    var memory;
+    // Set while the last write did not reach localStorage: what is stored
+    // there is older than memory until a write goes through again.
+    var unsaved = false;
+    var initial = function () { return fallback === undefined ? undefined : JSON.parse(JSON.stringify(fallback)); };
+    function get() {
+      if (!unsaved) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (raw != null) return JSON.parse(raw);
+        } catch (e) { /* storage unavailable: memory below */ }
+      }
+      return memory !== undefined ? memory : initial();
+    }
+    function set(value) {
+      memory = value;
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        unsaved = false;
+      } catch (e) {
+        unsaved = true;
+      }
+      return value;
+    }
+    return { get: get, set: set, update: function (fn) { return set(fn(get())); } };
+  }
+
+  // mock — seeded random data, so a page asks for 90 days of numbers in one
+  // line instead of writing them out; the same seed gives the same data.
+  var FIRST = ["Ana", "Bruno", "Carla", "Diego", "Eduarda", "Felipe", "Gabriela", "Henrique", "Isabela", "João",
+    "Larissa", "Marcos", "Natália", "Otávio", "Paula", "Rafael", "Sofia", "Thiago", "Vanessa", "Lucas"];
+  var LAST = ["Silva", "Santos", "Oliveira", "Souza", "Pereira", "Costa", "Rodrigues", "Almeida", "Nascimento", "Lima",
+    "Araújo", "Fernandes", "Carvalho", "Gomes", "Martins", "Rocha", "Ribeiro", "Barbosa"];
+  var INITIALS = "ABCDEFGHIJLMNOPRSTV".split("");
+  var CITIES = ["São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Curitiba, PR", "Porto Alegre, RS",
+    "Salvador, BA", "Recife, PE", "Fortaleza, CE", "Brasília, DF", "Goiânia, GO", "Campinas, SP", "Florianópolis, SC",
+    "Manaus, AM", "Belém, PA", "Vitória, ES", "Natal, RN"];
+
+  function createMock(seed) {
+    var state = seed >>> 0;
+    var names = 0;
+    function random() {
+      state = (state + 0x6d2b79f5) >>> 0;
+      var t = state;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    function int(min, max) { return min + Math.floor(random() * (max - min + 1)); }
+    function pick(list) { return list[Math.floor(random() * list.length)]; }
+    var mock = {
+      seed: function (value) { state = value >>> 0; names = 0; return mock; },
+      random: random,
+      int: int,
+      float: function (min, max, decimals) {
+        var factor = Math.pow(10, decimals == null ? 2 : decimals);
+        return Math.round((min + random() * (max - min)) * factor) / factor;
+      },
+      pick: pick,
+      chance: function (p) { return random() < p; },
+      // There are 360 first/last pairs. A page that draws until the name is
+      // new (do { … } while (used.has(name))) froze the tab past them, so
+      // later draws widen the space: a second surname after 200 (6,480), a
+      // middle initial after 4,000.
+      name: function () {
+        names++;
+        var middle = names > 4000 ? pick(INITIALS) + ". " : "";
+        return pick(FIRST) + " " + middle + (names > 200 ? pick(LAST) + " " : "") + pick(LAST);
+      },
+      city: function () { return pick(CITIES); },
+      // series(n, {start, trend, noise, min, decimals}) — a walk: each value
+      // moves by trend (fraction per step) plus up to ±noise of itself.
+      series: function (n, opts) {
+        opts = opts || {};
+        var value = opts.start == null ? 100 : opts.start;
+        var factor = Math.pow(10, opts.decimals || 0);
+        var out = [];
+        for (var i = 0; i < n; i++) {
+          out.push(Math.max(opts.min == null ? 0 : opts.min, Math.round(value * factor) / factor));
+          value = value * (1 + (opts.trend || 0)) * (1 + (random() * 2 - 1) * (opts.noise == null ? 0.08 : opts.noise));
+        }
+        return out;
+      },
+      // dates(n, {end?, step?: "day" | "week" | "month"}) — ISO dates
+      // (YYYY-MM-DD), oldest first, ending at end (default: today).
+      dates: function (n, opts) {
+        opts = opts || {};
+        var end = opts.end ? new Date(opts.end) : new Date();
+        var out = [];
+        for (var i = n - 1; i >= 0; i--) {
+          var d = new Date(end.getTime());
+          if (opts.step === "month") d.setMonth(d.getMonth() - i);
+          else d.setDate(d.getDate() - i * (opts.step === "week" ? 7 : 1));
+          out.push(d.toISOString().slice(0, 10));
+        }
+        return out;
+      },
+      // rows(n, spec) — n objects; each spec value is a function(i), a list
+      // to pick from, or a constant.
+      rows: function (n, spec) {
+        var out = [];
+        for (var i = 0; i < n; i++) {
+          var row = {};
+          for (var key in spec) {
+            var value = spec[key];
+            row[key] = typeof value === "function" ? value(i) : Array.isArray(value) ? pick(value) : value;
+          }
+          out.push(row);
+        }
+        return out;
+      }
+    };
+    return mock;
+  }
+
+  window.skipShell = { fmt: fmt };
+  window.skipChart = { bar: bar, line: line, donut: donut };
+  window.skipUI = { table: table, kpis: kpis, badge: badge, tabs: tabs, toast: toast };
+  window.skipStore = store;
+  window.skipMock = createMock(20261022);
+})();
+
+</script>
+<style>
+:root {
+--accent: #1F3864;
+--accent-text: #1F3864;
+--accent-contrast: #ffffff;
+--green: #15803d;
+--green-soft: #dcfce7;
+--orange: #b45309;
+--orange-soft: #fef3c7;
+--red: #b91c1c;
+--red-soft: #fee2e2;
+--blue-soft: #dbeafe;
+--blue-text: #1e40af;
+}
+body {
+font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+background: #f3f4f6;
+color: #111827;
+margin: 0;
+}
+body { overscroll-behavior: contain; }
+button, a, .nav-btn, .btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.app-header {
+background: var(--accent);
+color: #ffffff;
+padding: calc(20px + env(safe-area-inset-top)) 16px 24px;
+}
+.app-header-actions .btn[data-variant="ghost"] { color: #ffffff; }
+.app-header-gear { background: rgba(255,255,255,0.14); color: #ffffff; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; }
+.app-header { position: relative; }
+.pwa-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 70; background: #ffffff; color: #111827; border-bottom: 2px solid var(--accent); padding: 10px 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.15); }
+.pwa-banner[hidden] { display: none !important; }
+.pwa-banner .grow { flex: 1; min-width: 180px; }
+.pwa-banner .btn { min-height: 40px; padding: 8px 12px; font-size: 14px; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 80; display: flex; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
+.modal-backdrop[hidden] { display: none !important; }
+.modal-card { background: #ffffff; color: #111827; border-radius: 14px; padding: 20px; width: 100%; max-width: 520px; margin-top: 24px; box-sizing: border-box; }
+.modal-card h2 { margin: 0 0 8px; font-size: 20px; color: #1F3864; }
+.modal-card h3 { margin: 14px 0 6px; font-size: 16px; color: #1F3864; }
+.modal-close-row { display: flex; justify-content: flex-end; }
+.pwa-status { text-align: center; font-size: 11px; color: #4b5563; margin: 0 0 8px; }
+.btn-danger-full { background: #b91c1c; color: #ffffff; width: 100%; min-height: 44px; }
+.btn-danger-full:hover { background: #991b1b; }
+.backup-warn { background: #fff7ed; border: 1px solid #fed7aa; color: #78350f; border-radius: 8px; padding: 10px; font-size: 13px; margin: 8px 0; }
+.app-header .eyebrow-pill {
+display: inline-block;
+background: rgba(255,255,255,0.14);
+color: #ffffff;
+border: 1px solid rgba(255,255,255,0.3);
+border-radius: 999px;
+padding: 4px 12px;
+font-size: 12px;
+font-weight: 600;
+letter-spacing: 0.02em;
+}
+.app-header h1 {
+font-size: 22px;
+margin: 10px 0 4px;
+font-weight: 700;
+}
+.app-header p {
+margin: 0;
+color: #dbe4f3;
+font-size: 14px;
+}
+.app-header-actions {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin-top: 12px;
+}
+.app-header-actions .btn {
+min-height: 44px;
+}
+main.app-main {
+max-width: 1100px;
+margin: 0 auto;
+padding: 16px 16px 120px;
+}
+.bottom-nav {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+z-index: 40;
+background: #ffffff;
+border-top: 1px solid #e5e7eb;
+display: flex;
+justify-content: center;
+padding-bottom: env(safe-area-inset-bottom);
+}
+.bottom-nav-inner {
+display: flex;
+width: 100%;
+max-width: 600px;
+min-height: 56px;
+}
+.nav-btn {
+flex: 1;
+min-height: 56px;
+min-width: 44px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 2px;
+background: none;
+border: none;
+color: #4b5563;
+font-size: 12px;
+cursor: pointer;
+font-family: inherit;
+}
+.nav-btn svg { width: 20px; height: 20px; }
+.nav-btn span { font-size: 10px; white-space: nowrap; }
+.nav-btn { padding: 0 2px; font-size: 10px; }
+.painel-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.painel-kpi { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px; }
+.painel-kpi-label { font-size:12px; color:#374151; margin:0 0 4px; }
+.painel-kpi-value { font-size:22px; font-weight:800; color:#1F3864; margin:0; }
+.painel-kpi-sub { font-size:12px; color:#4b5563; margin:2px 0 0; }
+.hbar-row { display:grid; grid-template-columns: 110px 1fr 36px; gap:8px; align-items:center; margin-bottom:8px; font-size:13px; }
+.hbar-track { background:#e5e7eb; border-radius:6px; height:14px; overflow:hidden; }
+.hbar-fill { height:100%; background:linear-gradient(90deg,#1F3864,#4f7cc4); border-radius:6px; }
+.hbar-num { text-align:right; font-weight:700; color:#111827; }
+.vbars { display:flex; align-items:flex-end; gap:8px; height:180px; padding-top:20px; }
+.vbar-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+.vbar-val { font-size:12px; font-weight:700; color:#111827; margin-bottom:4px; }
+.vbar { width:100%; border-radius:6px 6px 0 0; background:#1F3864; min-height:2px; }
+.vbar.top { background:#1e7d4f; }
+.vbar-label { font-size:11px; color:#374151; margin-top:6px; text-align:center; line-height:1.2; }
+.insight { display:flex; gap:10px; align-items:flex-start; background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:12px; margin-bottom:8px; font-size:14px; color:#1f2937; }
+.insight svg { flex-shrink:0; width:20px; height:20px; color:#b45309; }
+@media (min-width: 768px) { .painel-2col { display:grid; grid-template-columns:1fr 1fr; gap:16px; } .painel-kpis { grid-template-columns: repeat(4, 1fr); } }
+.nav-btn[aria-current="page"] { color: #1F3864; font-weight: 700; }
+.nav-btn:focus-visible { outline: 3px solid #f59e0b; outline-offset: -3px; }
+.sticky-send {
+position: fixed;
+bottom: calc(56px + env(safe-area-inset-bottom));
+left: 0;
+right: 0;
+z-index: 39;
+padding: 8px 16px;
+background: linear-gradient(to top, #f3f4f6 70%, rgba(243,244,246,0));
+display: flex;
+justify-content: center;
+}
+.sticky-send .btn { width: 100%; max-width: 568px; background: #15803d; }
+.sticky-send .btn:hover { background: #166534; }
+.toast-top {
+position: fixed;
+top: 16px;
+left: 50%;
+transform: translate(-50%, -120%);
+z-index: 60;
+background: #1F3864;
+color: #ffffff;
+padding: 12px 16px;
+border-radius: 10px;
+font-size: 14px;
+max-width: 420px;
+width: calc(100% - 32px);
+box-shadow: 0 6px 18px rgba(15,23,42,0.25);
+transition: transform 0.3s ease;
+}
+.toast-top.show { transform: translate(-50%, 0); }
+.toast-top.error { background: #b91c1c; }
+.form-section-title { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #1F3864; }
+.loc-section { border-top: 1px solid #d1d5db; padding-top: 10px; margin-bottom: 14px; }
+.loc-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4b5563; margin: 0 0 10px; }
+.base-cover { font-size: 12px; color: #374151; margin: 4px 0 10px; }
+.version-tag { display: inline-block; font-size: 14px; font-weight: 700; color: #1F3864; background: #dbeafe; border-radius: 8px; padding: 6px 10px; margin: 4px 0 10px; }
+.field-error { color: #b91c1c; font-size: 13px; margin: 4px 0 0; }
+.input.invalid { border: 2px solid #b91c1c; }
+.tip-card { border: 1px solid #c7d2e5; border-radius: 12px; padding: 14px; margin-bottom: 12px; background: #ffffff; position: relative; }
+.tip-remove { position: absolute; top: 8px; right: 8px; }
+.emp-list-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px; }
+.emp-list-title { font-size:17px; font-weight:700; margin:0; }
+.emp-cover { height:120px; border-radius:10px; background:linear-gradient(135deg,#1F3864 0%,#4f7cc4 100%); background-size:cover; background-position:center; }
+.cover-wrap { margin-bottom: 12px; }
+.screen[hidden] { display: none !important; }
+.onboard {
+position: fixed;
+inset: 0;
+z-index: 100;
+background: linear-gradient(160deg, #0f1f3d 0%, #1F3864 55%, #2e5597 100%);
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 20px;
+overflow-y: auto;
+}
+.onboard[hidden] { display: none !important; }
+.onboard-card {
+background: #ffffff;
+color: #111827;
+border-radius: 16px;
+padding: 28px 22px;
+width: 100%;
+max-width: 400px;
+box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+.onboard-logo { font-size: 24px; font-weight: 800; color: #1F3864; margin: 0 0 4px; }
+.onboard-sub { font-size: 14px; color: #374151; margin: 0 0 20px; }
+.onboard-err { color: #b91c1c; font-size: 13px; margin: 6px 0 0; }
+.onboard-aviso { font-size: 11px; color: #6b7280; margin: 14px 0 0; line-height: 1.4; }
+.onboard-link { background: none; border: none; color: #1F3864; text-decoration: underline; font-size: 13px; cursor: pointer; font-family: inherit; margin-top: 12px; min-height: 44px; width: 100%; }
+.ident-bar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 8px;
+flex-wrap: wrap;
+max-width: 1100px;
+margin: 0 auto 12px;
+font-size: 13px;
+color: #374151;
+}
+.ident-who { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.ident-badge { background: #ea580c; color: #ffffff; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 8px; }
+.ident-out { background: none; border: none; color: #4b5563; font-size: 12px; text-decoration: underline; cursor: pointer; font-family: inherit; min-height: 36px; padding: 4px 8px; }
+.card {
+background: #ffffff;
+border: 1px solid #e5e7eb;
+border-radius: 12px;
+padding: 16px;
+margin-bottom: 16px;
+box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+}
+.card-title {
+font-size: 16px;
+font-weight: 700;
+margin: 0 0 4px;
+color: #111827;
+}
+.card-sub {
+font-size: 13px;
+color: #4b5563;
+margin: 0 0 12px;
+}
+.helper {
+font-size: 12px;
+color: #4b5563;
+margin: 4px 0 0;
+}
+.field {
+margin-bottom: 14px;
+}
+.field label, .field-label {
+display: block;
+font-size: 14px;
+font-weight: 600;
+margin-bottom: 6px;
+color: #111827;
+}
+.input, select.input {
+width: 100%;
+min-height: 44px;
+padding: 10px 12px;
+border: 1px solid #9ca3af;
+border-radius: 8px;
+font-size: 16px;
+box-sizing: border-box;
+background: #ffffff;
+color: #111827;
+}
+.input:focus, .btn:focus-visible, .chip:focus-visible, .check-row input:focus-visible {
+outline: 3px solid #f59e0b;
+outline-offset: 2px;
+}
+.row-2 {
+display: grid;
+grid-template-columns: 1fr;
+gap: 12px;
+}
+.btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+min-height: 44px;
+padding: 10px 16px;
+border-radius: 8px;
+border: 1px solid transparent;
+font-size: 15px;
+font-weight: 600;
+cursor: pointer;
+background: var(--accent);
+color: #ffffff;
+transition: background 0.15s ease;
+}
+.btn:hover { background: #162c52; }
+.btn[data-variant="outline"] {
+background: #ffffff;
+color: var(--accent);
+border-color: var(--accent);
+}
+.btn[data-variant="outline"]:hover { background: #eef2f9; }
+.btn[data-variant="ghost"] {
+background: transparent;
+color: var(--accent);
+}
+.btn[data-variant="ghost"]:hover { background: #e5e7eb; }
+.btn-full { width: 100%; height: 48px; }
+.btn-suggest {
+width: 100%;
+justify-content: flex-start;
+text-align: left;
+background: #ffffff;
+color: var(--accent);
+border: 1px solid #c7d2e5;
+}
+.btn-suggest:hover { background: #eef2f9; }
+.inegociavel-box {
+border: 2px solid var(--accent);
+border-radius: 10px;
+padding: 12px;
+background: #eef2f9;
+}
+.tag-inegociavel {
+display: inline-block;
+background: var(--accent);
+color: #ffffff;
+font-size: 11px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.06em;
+padding: 3px 8px;
+border-radius: 999px;
+margin-left: 8px;
+vertical-align: middle;
+}
+.note-text {
+font-size: 13px;
+color: #1f2937;
+margin: 8px 0 0;
+}
+.chip-group {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+}
+.check-row {
+display: flex;
+align-items: center;
+gap: 8px;
+min-height: 44px;
+padding: 6px 10px;
+border: 1px solid #d1d5db;
+border-radius: 8px;
+background: #ffffff;
+font-size: 15px;
+cursor: pointer;
+color: #111827;
+}
+.check-row input {
+width: 18px;
+height: 18px;
+accent-color: var(--accent);
+}
+.check-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 8px;
+margin-top: 8px;
+max-height: 240px;
+overflow-y: auto;
+padding: 4px;
+}
+.radio-option {
+display: flex;
+align-items: center;
+gap: 8px;
+min-height: 44px;
+padding: 8px 12px;
+border: 1px solid #9ca3af;
+border-radius: 8px;
+background: #ffffff;
+cursor: pointer;
+font-size: 15px;
+color: #111827;
+}
+.radio-option input { accent-color: var(--accent); width: 18px; height: 18px; }
+.radio-option.selected { border: 2px solid var(--accent); background: #eef2f9; font-weight: 600; }
+.radio-group {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 8px;
+}
+.badge {
+display: inline-block;
+font-size: 12px;
+font-weight: 600;
+padding: 4px 10px;
+border-radius: 999px;
+line-height: 1.2;
+white-space: nowrap;
+}
+.badge-lazer-sem { background: #e5e7eb; color: #1f2937; }
+.badge-lazer-basico { background: var(--blue-soft); color: var(--blue-text); }
+.badge-lazer-completo { background: #bfdbfe; color: #1e3a8a; }
+.badge-lazer-clube { background: #14532d; color: #ffffff; }
+.badge-origem-curada { background: var(--green-soft); color: #14532d; }
+.badge-origem-minha { background: #e5e7eb; color: #1f2937; }
+.badge-sit-disponivel { background: var(--green-soft); color: #14532d; }
+.badge-sit-ultimas { background: var(--orange-soft); color: #78350f; }
+.badge-sit-esgotado { background: var(--red-soft); color: #7f1d1d; }
+.counter-pill {
+display: inline-block;
+background: var(--green-soft);
+color: #14532d;
+font-weight: 700;
+font-size: 14px;
+border-radius: 999px;
+padding: 6px 14px;
+}
+.results-header {
+display: flex;
+flex-wrap: wrap;
+justify-content: space-between;
+align-items: center;
+gap: 12px;
+margin-bottom: 16px;
+}
+.results-grid {
+display: grid;
+grid-template-columns: 1fr;
+gap: 16px;
+}
+.lead-hero {
+background: linear-gradient(135deg, #eef2f9 0%, #ffffff 100%);
+border: 1px solid #c7d2e5;
+border-radius: 12px;
+padding: 16px;
+margin-bottom: 16px;
+}
+.hero-label {
+font-size: 12px;
+text-transform: uppercase;
+letter-spacing: 0.06em;
+font-weight: 700;
+color: var(--accent);
+margin: 0;
+}
+.hero-value {
+font-size: 32px;
+font-weight: 800;
+color: var(--accent);
+margin: 4px 0;
+}
+.hero-caption {
+font-size: 13px;
+color: #374151;
+margin: 0;
+}
+.prop-card {
+background: #ffffff;
+border: 1px solid #e5e7eb;
+border-radius: 12px;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+}
+.prop-img {
+height: 140px;
+display: flex;
+align-items: flex-end;
+padding: 12px;
+color: #ffffff;
+font-weight: 700;
+font-size: 18px;
+text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.prop-img-1 { background: linear-gradient(135deg, #1F3864 0%, #4f7cc4 100%); }
+.prop-img-2 { background: linear-gradient(135deg, #15803d 0%, #86efac 100%); }
+.prop-img-3 { background: linear-gradient(135deg, #6b7280 0%, #d1d5db 100%); }
+.prop-img-4 { background: linear-gradient(135deg, #7c2d12 0%, #fdba74 100%); }
+.prop-img-5 { background: linear-gradient(135deg, #312e81 0%, #a5b4fc 100%); }
+.prop-img-6 { background: linear-gradient(135deg, #0f766e 0%, #5eead4 100%); }
+.prop-body {
+padding: 14px;
+display: flex;
+flex-direction: column;
+gap: 8px;
+flex: 1;
+}
+.prop-name { font-size: 18px; font-weight: 700; margin: 0; color: #111827; }
+.prop-meta { font-size: 13px; color: #374151; margin: 0; }
+.prop-specs {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 6px;
+font-size: 13px;
+color: #111827;
+}
+.prop-specs div strong { display: block; font-size: 15px; }
+.prop-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.prop-price {
+font-size: 20px;
+font-weight: 800;
+color: var(--accent);
+margin: 0;
+}
+.prop-small { font-size: 13px; color: #374151; margin: 0; }
+.prop-footer {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 8px;
+flex-wrap: wrap;
+border-top: 1px solid #e5e7eb;
+padding-top: 10px;
+}
+.toast-host {
+position: fixed;
+bottom: 16px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 50;
+display: flex;
+flex-direction: column;
+gap: 8px;
+width: calc(100% - 32px);
+max-width: 420px;
+pointer-events: none;
+}
+.search-box { position: relative; margin-bottom: 12px; }
+.search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: #4b5563; pointer-events: none; }
+.search-box .input { padding-left: 40px; }
+.list-count { font-size: 13px; color: #374151; margin: 0 0 10px; }
+.emp-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.emp-actions .btn { min-height: 40px; padding: 8px 12px; font-size: 14px; }
+.btn-danger { background: #b91c1c; color: #ffffff; }
+.btn-danger:hover { background: #991b1b; }
+.hist-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:14px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px; }
+.hist-date { font-size:15px; font-weight:700; margin:0; color:#111827; }
+.hist-profile { font-size:13px; color:#374151; margin:0; }
+.hist-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.hist-actions .btn { min-height:40px; padding:8px 12px; font-size:14px; }
+.link-danger { background:none; border:none; color:#b91c1c; font-size:13px; text-decoration:underline; cursor:pointer; font-family:inherit; padding:8px; min-height:44px; }
+.empty-box {
+background: #ffffff;
+border: 1px dashed #9ca3af;
+border-radius: 12px;
+padding: 20px;
+text-align: center;
+margin-bottom: 16px;
+}
+.empty-title { font-size: 18px; font-weight: 700; margin: 0 0 6px; color: #111827; }
+.app-footer {
+text-align: center;
+font-size: 12px;
+color: #4b5563;
+padding: 24px 16px;
+border-top: 1px solid #e5e7eb;
+margin-top: 24px;
+}
+@media (min-width: 768px) {
+.results-grid { grid-template-columns: 1fr 1fr; }
+.row-2 { grid-template-columns: 1fr 1fr; }
+.app-header { padding: 28px 24px 32px; }
+.app-header h1 { font-size: 28px; }
+main.app-main { padding: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="onboard" id="onboard" hidden>
+<div class="onboard-card">
+<p class="onboard-logo">Match Imobiliário</p>
+<p class="onboard-sub">Ferramenta de qualificação de leads para corretores de imóveis</p>
+<form id="form-onboard" novalidate>
+<div class="field">
+<label for="ob-codigo">Seu código de acesso</label>
+<input class="input" id="ob-codigo" type="text" placeholder="Ex: COR-1234" autocomplete="off">
+<p class="onboard-err" id="ob-erro" hidden></p>
+</div>
+<div class="field">
+<label for="ob-nome">Seu nome (opcional)</label>
+<input class="input" id="ob-nome" type="text" autocomplete="off">
+</div>
+<button type="submit" class="btn btn-full">Entrar</button>
+</form>
+<button type="button" class="onboard-link" id="ob-visitante">Não tenho código — entrar como visitante</button>
+<p class="onboard-aviso">Este código identifica você neste dispositivo. Ele não é uma senha e não protege os dados — serve para separar a base de cada corretor. Proteção real de dados chega com a versão em nuvem.</p>
+</div>
+</div>
+
+<div class="ident-bar" id="ident-bar" hidden>
+<span class="ident-who">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+<span id="ident-texto"></span>
+<span class="ident-badge" id="ident-badge" hidden title="No modo visitante, seus cadastros ficam salvos apenas neste dispositivo e não são separados por corretor.">modo visitante</span>
+</span>
+<button type="button" class="ident-out" id="btn-sair">Sair</button>
+</div>
+
+<div class="pwa-banner" id="pwa-banner" hidden>
+<span class="grow">Instale o Match Imobiliário na tela inicial</span>
+<button type="button" class="btn" id="btn-instalar">Instalar</button>
+<button type="button" class="btn" data-variant="ghost" id="btn-agora-nao">Agora não</button>
+</div>
+<header class="app-header">
+<button type="button" class="app-header-gear" id="btn-config" aria-label="Configurações">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+</button>
+<span class="eyebrow-pill">Lançamentos Rio de Janeiro</span>
+<h1>Match Imobiliário</h1>
+<p>Qualifique o lead e encontre as tipologias compatíveis com o perfil do cliente.</p>
+<div class="app-header-actions">
+<button type="button" class="btn" data-variant="outline" id="btn-print" style="background:#ffffff;color:var(--accent);">Imprimir / PDF</button>
+<button type="button" class="btn" data-variant="ghost" id="btn-reset" style="color:#ffffff;">Restaurar padrão</button>
+</div>
+</header>
+
+<main class="app-main">
+<!-- TELA 1: QUALIFICAÇÃO -->
+<section class="screen" id="screen-form">
+<div class="card">
+<h2 class="card-title" style="font-size:20px;">Qualificar Lead</h2>
+<p class="card-sub">Informe o perfil do cliente e veja os lançamentos compatíveis</p>
+
+<p class="base-cover" id="base-cover"></p>
+<div class="loc-section">
+<p class="loc-title">Localização</p>
+<div class="field">
+<label for="sel-estado">Estado</label>
+<select class="input" id="sel-estado"></select>
+</div>
+<div class="field">
+<label for="sel-cidade">Cidade</label>
+<select class="input" id="sel-cidade" disabled></select>
+</div>
+<div class="field">
+<label for="sel-regiao">Região</label>
+<select class="input" id="sel-regiao" disabled>
+<option value="">Selecione a cidade primeiro</option>
+</select>
+<p class="helper">Agrupamento da cidade. Ao escolher uma região, os bairros são filtrados.</p>
+</div>
+<button type="button" class="btn" data-variant="outline" id="btn-limpar-loc">Limpar filtros de localização</button>
+</div>
+
+<div class="field">
+<label for="bairro-busca">Bairro(s) de interesse</label>
+<input class="input" id="bairro-busca" type="search" list="bairros-lista" placeholder="Digite para buscar um bairro" autocomplete="off">
+<datalist id="bairros-lista">
+<option value="Barra da Tijuca"></option>
+<option value="Recreio"></option>
+<option value="Jacarepaguá"></option>
+<option value="Copacabana"></option>
+<option value="Tijuca"></option>
+<option value="Botafogo"></option>
+<option value="Ipanema"></option>
+<option value="Leblon"></option>
+<option value="Méier"></option>
+<option value="Campo Grande"></option>
+</datalist>
+<p class="helper">Marque um ou mais bairros. Sem seleção, a busca considera todos.</p>
+<div class="check-grid" id="bairros-checks" role="group" aria-label="Lista de bairros"></div>
+<p class="helper" id="bairros-resumo">Nenhum bairro selecionado: considerando todos.</p>
+</div>
+
+<div class="field">
+<span class="field-label">Tamanho desejado (m²)</span>
+<div class="row-2">
+<div>
+<label for="area-min">Área mínima</label>
+<input class="input" id="area-min" type="number" min="0" step="1" value="40">
+</div>
+<div>
+<label for="area-max">Área máxima</label>
+<input class="input" id="area-max" type="number" min="0" step="1" value="200">
+</div>
+</div>
+<p class="helper">Área útil em metros quadrados. Padrão de 40 a 200 m².</p>
+</div>
+
+<div class="field inegociavel-box">
+<span class="field-label">Vagas mínimas<span class="tag-inegociavel">inegociável</span></span>
+<div class="radio-group" role="radiogroup" aria-label="Vagas mínimas" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+<label class="radio-option" data-vagas="0"><input type="radio" name="vagas" value="0"> Não preciso de vaga (0)</label>
+<label class="radio-option" data-vagas="1"><input type="radio" name="vagas" value="1"> 1 vaga</label>
+<label class="radio-option selected" data-vagas="2"><input type="radio" name="vagas" value="2" checked> 2 vagas</label>
+<label class="radio-option" data-vagas="3"><input type="radio" name="vagas" value="3"> 3 vagas</label>
+<label class="radio-option" data-vagas="4"><input type="radio" name="vagas" value="4"> 4 ou mais</label>
+</div>
+<p class="note-text"><strong>Este filtro nunca é relaxado automaticamente.</strong></p>
+<p class="helper" style="color:#6b7280;margin-top:6px;">Studios e unidades econômicas frequentemente não possuem vaga. Selecione 'Não preciso de vaga' para incluí-los na busca.</p>
+</div>
+
+<div class="field">
+<label for="preco-max">Faixa de preço — Até R$</label>
+<input class="input" id="preco-max" type="text" inputmode="numeric" value="R$ 800.000">
+<p class="helper">Digite o valor máximo. A máscara em reais é aplicada automaticamente.</p>
+</div>
+
+<button type="button" class="btn btn-full" id="btn-buscar">Buscar lançamentos compatíveis</button>
+</div>
+
+<div class="card">
+<h3 class="card-title">Perfil atual</h3>
+<p class="card-sub">Resumo do que será buscado nos lançamentos</p>
+<p class="prop-small" id="perfil-resumo"></p>
+</div>
+</section>
+
+<!-- TELA 2: RESULTADOS -->
+<section class="screen" id="screen-results" hidden>
+<div class="results-header">
+<div>
+<button type="button" class="btn" data-variant="outline" id="btn-nova-busca">← Nova busca</button>
+</div>
+<span class="counter-pill" id="contador">0 lançamentos compatíveis</span>
+</div>
+
+<div class="lead-hero">
+<p class="hero-label">Resultado da qualificação</p>
+<p class="hero-value" id="hero-valor">0</p>
+<p class="hero-caption" id="hero-caption">tipologias compatíveis com o perfil do cliente</p>
+</div>
+
+<div class="row-2" style="margin-bottom:12px;">
+<div class="chip-group" id="acoes-resultado">
+<button type="button" class="btn" data-variant="outline" id="btn-copiar">Copiar resumo</button>
+<button type="button" class="btn" data-variant="outline" id="btn-salvar">Salvar perfil</button>
+<button type="button" class="btn" data-variant="outline" id="btn-detalhes">Ver critérios</button>
+</div>
+</div>
+
+<div id="lista-resultados" class="results-grid"></div>
+<div style="height:8px;"></div>
+
+<div id="bloco-vazio" class="empty-box" hidden>
+<p class="empty-title">Nenhum lançamento compatível com este perfil.</p>
+<p class="helper">Ajuste um critério por vez para ver quantos resultados adicionais apareceriam.</p>
+<div class="card" style="text-align:left;margin-top:16px;margin-bottom:0;">
+<h3 class="card-title">Sugestões para ampliar a busca</h3>
+<p class="card-sub">Cada sugestão relaxa apenas uma variável por vez</p>
+<div class="stack" style="display:flex;flex-direction:column;gap:8px;">
+<button type="button" class="btn btn-suggest" id="sug-preco">Ampliar faixa de preço em 20%</button>
+<button type="button" class="btn btn-suggest" id="sug-area">Ampliar área em 20%</button>
+<button type="button" class="btn btn-suggest" id="sug-bairros">Adicionar bairros vizinhos</button>
+</div>
+<p class="note-text" id="sug-resultado"></p>
+<p class="helper">O filtro de vagas mínimas não é relaxado automaticamente.</p>
+</div>
+</div>
+</section>
+</main>
+
+</section>
+
+<!-- TELA 3: CADASTRAR EMPREENDIMENTO -->
+<section class="screen" id="screen-cadastro" hidden>
+<div class="card">
+<h2 class="card-title" style="font-size:20px;" id="cad-titulo">Cadastrar empreendimento</h2>
+<p class="card-sub">Preencha os dados do lançamento e ao menos uma tipologia</p>
+<form id="form-emp" novalidate>
+<h3 class="form-section-title">Dados do empreendimento</h3>
+<div class="field"><label for="f-nome">Nome do empreendimento *</label><input class="input" id="f-nome" type="text"><p class="field-error" hidden></p></div>
+<div class="field"><label for="f-construtora">Construtora *</label><input class="input" id="f-construtora" type="text"><p class="field-error" hidden></p></div>
+<div class="field"><label for="f-regiao">Região</label><input class="input" id="f-regiao" type="text" list="regioes-lista" autocomplete="off"><datalist id="regioes-lista"></datalist><p class="helper">Agrupamento comercial usado no filtro do lead. Ex: Zona Sul, Barra e adjacências. Opcional.</p></div>
+<div class="field"><label for="f-bairro">Bairro *</label><input class="input" id="f-bairro" type="text"><p class="field-error" hidden></p></div>
+<div class="row-2">
+<div class="field"><label for="f-cidade">Cidade *</label><input class="input" id="f-cidade" type="text" value="Rio de Janeiro"><p class="field-error" hidden></p></div>
+<div class="field"><label for="f-uf">UF *</label><select class="input" id="f-uf"></select></div>
+</div>
+<div class="field"><label for="f-endereco">Endereço completo *</label><input class="input" id="f-endereco" type="text"><p class="field-error" hidden></p></div>
+<div class="row-2">
+<div class="field"><label for="f-lazer">Nível de lazer *</label>
+<select class="input" id="f-lazer"><option value="">Selecione</option><option value="sem">Sem lazer</option><option value="basico">Básico</option><option value="completo">Completo</option><option value="clube">Condomínio clube</option></select>
+<p class="field-error" hidden></p></div>
+<div class="field"><label for="f-entrega">Previsão de entrega *</label><input class="input" id="f-entrega" type="month"><p class="field-error" hidden></p></div>
+</div>
+<div class="row-2">
+<div class="field"><label for="f-pf">Comissão PF % *</label><input class="input" id="f-pf" type="number" step="0.1" min="0"><p class="field-error" hidden></p></div>
+<div class="field"><label for="f-pj">Comissão PJ % *</label><input class="input" id="f-pj" type="number" step="0.1" min="0"><p class="field-error" hidden></p></div>
+</div>
+<div class="field"><label for="f-situacao">Situação</label>
+<select class="input" id="f-situacao"><option value="disponivel">Disponível</option><option value="ultimas_unidades">Últimas unidades</option><option value="esgotado">Esgotado</option></select></div>
+<div class="field"><label for="f-foto">Foto da fachada</label><input class="input" id="f-foto" type="file" accept="image/*">
+<div class="cover-wrap"><div id="f-preview" class="emp-cover"></div></div></div>
+
+<h3 class="form-section-title">Tipologias</h3>
+<div id="tipologias-box"></div>
+<button type="button" class="btn" data-variant="outline" id="btn-add-tip" style="width:100%;margin-bottom:16px;">+ Adicionar tipologia</button>
+<p class="field-error" id="err-tip" hidden>Preencha ao menos 1 tipologia.</p>
+
+<button type="submit" class="btn btn-full" id="btn-salvar-emp">Salvar empreendimento</button>
+<button type="button" class="btn btn-full" data-variant="outline" id="btn-cancelar-edicao" hidden style="margin-top:8px;">Cancelar edição</button>
+</form>
+</div>
+</section>
+
+<!-- TELA 4: MEUS IMÓVEIS -->
+<section class="screen" id="screen-meus" hidden>
+<div class="results-header"><h2 class="card-title" style="font-size:20px;margin:0;">Meus imóveis</h2></div>
+<div class="search-box">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+<input class="input" id="busca-meus" type="search" placeholder="Buscar por nome, construtora ou bairro..." aria-label="Buscar empreendimentos" autocomplete="off">
+</div>
+<p class="list-count" id="meus-contador"></p>
+<div id="busca-vazia" class="empty-box" hidden>
+<p class="empty-title" id="busca-vazia-texto"></p>
+<button type="button" class="btn" data-variant="outline" id="btn-limpar-busca" style="margin-top:8px;">Limpar busca</button>
+</div>
+<div id="lista-meus"></div>
+<div id="meus-vazio" class="empty-box" hidden>
+<p class="empty-title">Você ainda não cadastrou nenhum empreendimento.</p>
+<button type="button" class="btn" id="btn-primeiro-cadastro" style="margin-top:12px;">Cadastrar o primeiro</button>
+</div>
+</section>
+
+<!-- TELA 5: HISTÓRICO -->
+<section class="screen" id="screen-painel" hidden>
+<div class="results-header"><h2 class="card-title" style="font-size:20px;margin:0;">Painel de demanda</h2></div>
+<div id="painel-vazio" class="empty-box" hidden>
+<p class="empty-title">Ainda não há dados suficientes. Faça algumas buscas para gerar inteligência de demanda.</p>
+<button type="button" class="btn" id="btn-painel-busca" style="margin-top:12px;">Fazer uma busca</button>
+</div>
+<div id="painel-conteudo" hidden>
+<div class="painel-kpis" id="painel-kpis"></div>
+<div class="painel-2col">
+<div class="card"><h3 class="card-title">Bairros mais buscados</h3><div id="painel-bairros"></div></div>
+<div class="card"><h3 class="card-title">Regiões mais buscadas</h3><div id="painel-regioes"></div></div>
+<div class="card"><h3 class="card-title">Orçamento máximo informado</h3><div id="painel-preco"></div></div>
+</div>
+<div class="painel-2col">
+<div class="card"><h3 class="card-title">Vagas mínimas exigidas</h3><div id="painel-vagas"></div>
+<p class="helper">Este é o filtro inegociável. A distribuição indica qual perfil de vaga priorizar na captação.</p></div>
+<div class="card"><h3 class="card-title">Lacunas de inventário</h3><div id="painel-lacunas"></div></div>
+</div>
+<div class="row-2" style="margin-top:8px;">
+<button type="button" class="btn" data-variant="outline" id="btn-export-painel">Exportar relatório CSV</button>
+</div>
+</div>
+</section>
+
+<section class="screen" id="screen-historico" hidden>
+<div class="results-header">
+<h2 class="card-title" style="font-size:20px;margin:0;">Histórico de qualificações</h2>
+<button type="button" class="btn" data-variant="outline" id="btn-export-csv">Exportar CSV</button>
+</div>
+<div id="lista-historico"></div>
+<div id="historico-vazio" class="empty-box" hidden>
+<p class="empty-title">Nenhuma busca realizada ainda.</p>
+<button type="button" class="btn" id="btn-primeira-busca" style="margin-top:12px;">Fazer primeira busca</button>
+</div>
+<div id="historico-rodape" style="text-align:center;margin-top:8px;" hidden>
+<button type="button" class="link-danger" id="btn-limpar-historico">Limpar histórico</button>
+</div>
+</section>
+</main>
+
+<div class="sticky-send" id="sticky-send" hidden>
+<button type="button" class="btn" id="btn-whats">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.2.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.6 11.4 11.4 0 0 0 4.4 3.9c2.1.9 2.5.7 3 .6a2.5 2.5 0 0 0 1.6-1.2 2 2 0 0 0 .1-1.2c0-.1-.2-.2-.5-.3z"/></svg>
+Enviar perfil para o corretor
+</button>
+</div>
+
+<nav class="bottom-nav" aria-label="Navegação principal">
+<div class="bottom-nav-inner">
+<button type="button" class="nav-btn" data-nav="form" aria-current="page">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+<span>Buscar</span></button>
+<button type="button" class="nav-btn" data-nav="cadastro">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+<span>Cadastrar</span></button>
+<button type="button" class="nav-btn" data-nav="historico">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+<span>Histórico</span></button>
+<button type="button" class="nav-btn" data-nav="meus">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+<span>Meus imóveis</span></button>
+<button type="button" class="nav-btn" data-nav="painel">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+<span>Painel</span></button>
+</div>
+</nav>
+
+<div class="toast-top" id="toast-top" role="status" aria-live="polite"></div>
+
+<div class="modal-backdrop" id="modal-config" hidden>
+<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="cfg-titulo">
+<div class="modal-close-row"><button type="button" class="btn" data-variant="ghost" id="btn-fechar-config">Fechar</button></div>
+<h2 id="cfg-titulo">Configurações</h2>
+<h3>Corretor</h3>
+<p class="prop-small" id="cfg-corretor"></p>
+<h3>Backup de dados</h3>
+<p class="backup-warn">Seus dados ficam salvos apenas neste navegador. Se você limpar o cache ou trocar de celular, eles serão perdidos. Exporte um backup regularmente.</p>
+<div class="emp-actions">
+<button type="button" class="btn" id="btn-export-backup">Exportar backup</button>
+<button type="button" class="btn" data-variant="outline" id="btn-import-backup">Importar backup</button>
+</div>
+<input type="file" id="file-backup" accept=".json,application/json" hidden>
+<h3>Sobre o app</h3>
+<p class="version-tag">Versão 1.2.0 — Base nacional com 9 empreendimentos</p>
+<p class="prop-small">Versão 1.2.0</p>
+<h3>Atualização</h3>
+<button type="button" class="btn" data-variant="outline" id="btn-forcar" style="width:100%;margin-bottom:8px;">Forçar atualização do app</button>
+<p class="prop-small">MVP — Cenário A. Dados salvos localmente neste dispositivo.</p>
+<h3>Conta</h3>
+<button type="button" class="btn" data-variant="outline" id="btn-sair-config" style="width:100%;margin-bottom:8px;">Sair</button>
+<button type="button" class="btn btn-danger-full" id="btn-limpar-tudo">Limpar todos os dados</button>
+</div>
+</div>
+
+<div class="modal-backdrop" id="modal-import" hidden>
+<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="imp-titulo">
+<h2 id="imp-titulo">Importar backup</h2>
+<p class="prop-small" id="imp-resumo"></p>
+<div class="emp-actions" style="margin-top:12px;flex-direction:column;">
+<button type="button" class="btn btn-danger-full" id="btn-imp-substituir">Substituir todos os dados atuais</button>
+<button type="button" class="btn" data-variant="outline" id="btn-imp-mesclar">Mesclar com os dados atuais</button>
+<button type="button" class="btn" data-variant="ghost" id="btn-imp-cancelar">Cancelar</button>
+</div>
+</div>
+</div>
+
+<footer class="app-footer">
+<p class="pwa-status" id="pwa-status">Modo online</p>
+<p>MVP — Cenário A (uso local). Dados de exemplo para demonstração.</p>
+</footer>
+
+<script>
+(function () {
+var STORAGE_BASE = "match_imobiliario_empreendimentos";
+var CORRETOR_KEY = "match_imobiliario_corretor";
+var HIST_BASE = "match_imobiliario_historico";
+var CORRETOR = null;
+var STORAGE_KEY = STORAGE_BASE;
+var UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+var LAZER_LABEL = { sem: "Sem lazer", basico: "Básico", completo: "Completo", clube: "Clube" };
+var SIT_LABEL = { disponivel: "Disponível", ultimas_unidades: "Últimas unidades", esgotado: "Esgotado" };
+var IMG_CLASSES = ["prop-img-1","prop-img-2","prop-img-3","prop-img-4","prop-img-5","prop-img-6"];
+var WA_NUMBER = "5521999999999";
+var CURADA_BASE = [
+{ id: 1, nome: "Residencial Mirante da Barra", construtora: "Construtora Horizonte", bairro: "Barra da Tijuca", regiao: "Barra e adjacências", cidade: "Rio de Janeiro", lazer: "clube", entrega: "12/2028", comissaoPF: "3%", comissaoPJ: "4%", origem: "curada", situacao: "disponivel", img: "prop-img-1",
+tipologias: [
+{ dorm: 2, suites: 1, area: 68, vagas: 2, varanda: true, gourmet: true, preco: 620000 },
+{ dorm: 3, suites: 2, area: 92, vagas: 2, varanda: true, gourmet: true, preco: 890000 }
+]},
+{ id: 2, nome: "Viva Recreio", construtora: "Construtora Atlântica", bairro: "Recreio", regiao: "Barra e adjacências", cidade: "Rio de Janeiro", lazer: "completo", entrega: "06/2027", comissaoPF: "2,5%", comissaoPJ: "3,5%", origem: "curada", situacao: "ultimas_unidades", img: "prop-img-2",
+tipologias: [
+{ nome: "Studio", dorm: 1, suites: 0, area: 32, vagas: 0, varanda: false, gourmet: false, preco: 285000 },
+{ dorm: 2, suites: 1, area: 58, vagas: 1, varanda: true, gourmet: false, preco: 445000 },
+{ dorm: 3, suites: 1, area: 74, vagas: 2, varanda: true, gourmet: true, preco: 580000 }
+]},
+{ id: 3, nome: "Jardins de Jacarepaguá", construtora: "Construtora Vale Verde", bairro: "Jacarepaguá", regiao: "Zona Oeste", cidade: "Rio de Janeiro", lazer: "basico", entrega: "03/2027", comissaoPF: "3%", comissaoPJ: "4%", origem: "corretor", situacao: "disponivel", img: "prop-img-3",
+tipologias: [
+{ dorm: 2, suites: 1, area: 52, vagas: 1, varanda: false, gourmet: false, preco: 320000 },
+{ dorm: 3, suites: 1, area: 66, vagas: 2, varanda: true, gourmet: false, preco: 410000 }
+]},
+{ id: 4, nome: "Torre Copacabana Prime", construtora: "Construtora Bossa", bairro: "Copacabana", regiao: "Zona Sul", cidade: "Rio de Janeiro", lazer: "completo", entrega: "09/2028", comissaoPF: "3,5%", comissaoPJ: "4,5%", origem: "curada", situacao: "disponivel", img: "prop-img-4",
+tipologias: [
+{ dorm: 3, suites: 3, area: 110, vagas: 3, varanda: true, gourmet: true, preco: 1450000 },
+{ dorm: 4, suites: 4, area: 145, vagas: 4, varanda: true, gourmet: true, preco: 2100000 }
+]},
+{ id: 5, nome: "Reserva Tijuca", construtora: "Construtora Horizonte", bairro: "Tijuca", regiao: "Zona Norte", cidade: "Rio de Janeiro", lazer: "basico", entrega: "11/2027", comissaoPF: "2%", comissaoPJ: "3%", origem: "corretor", situacao: "disponivel", img: "prop-img-5",
+tipologias: [
+{ nome: "Studio compacto", dorm: 1, suites: 0, area: 28, vagas: 0, varanda: false, gourmet: false, preco: 215000 },
+{ dorm: 1, suites: 0, area: 38, vagas: 1, varanda: false, gourmet: false, preco: 245000 },
+{ dorm: 2, suites: 1, area: 61, vagas: 1, varanda: true, gourmet: false, preco: 395000 }
+]},
+{ id: 6, nome: "Alto Botafogo Club", construtora: "Construtora Atlântica", bairro: "Botafogo", regiao: "Zona Sul", cidade: "Rio de Janeiro", lazer: "clube", entrega: "05/2029", comissaoPF: "3%", comissaoPJ: "4%", origem: "curada", situacao: "disponivel", img: "prop-img-6",
+tipologias: [
+{ dorm: 2, suites: 2, area: 78, vagas: 2, varanda: true, gourmet: true, preco: 780000 },
+{ dorm: 3, suites: 2, area: 95, vagas: 2, varanda: true, gourmet: true, preco: 980000 }
+]}
+];
+var BASE_CURADA = [
+{ id: 1, nome: "Residencial Mirante da Barra", construtora: "Construtora Horizonte", estado: "RJ", uf: "RJ", cidade: "Rio de Janeiro", regiao: "Barra e adjacências", bairro: "Barra da Tijuca", endereco: "Av. das Américas, Barra da Tijuca", lazer_nivel: "clube", lazer: "clube", previsao_entrega: "2028-12", entrega: "12/2028", comissao_pf: 3, comissao_pj: 4, comissaoPF: "3%", comissaoPJ: "4%", situacao: "disponivel", origem: "curada", img: "prop-img-1",
+tipologias: [
+{ dorm: 2, suites: 1, area: 68, vagas: 2, varanda: true, gourmet: true, preco: 620000 },
+{ dorm: 3, suites: 2, area: 92, vagas: 2, varanda: true, gourmet: true, preco: 890000 }
+]},
+{ id: 2, nome: "Viva Recreio", construtora: "Construtora Atlântica", estado: "RJ", uf: "RJ", cidade: "Rio de Janeiro", regiao: "Barra e adjacências", bairro: "Recreio", endereco: "Av. Lúcio Costa, Recreio", lazer_nivel: "completo", lazer: "completo", previsao_entrega: "2027-06", entrega: "06/2027", comissao_pf: 2.5, comissao_pj: 3.5, comissaoPF: "2,5%", comissaoPJ: "3,5%", situacao: "ultimas_unidades", origem: "curada", img: "prop-img-2",
+tipologias: [
+{ nome: "Studio", dorm: 1, suites: 0, area: 32, vagas: 0, varanda: false, gourmet: false, preco: 285000 },
+{ dorm: 2, suites: 1, area: 58, vagas: 1, varanda: true, gourmet: false, preco: 445000 },
+{ dorm: 3, suites: 1, area: 74, vagas: 2, varanda: true, gourmet: true, preco: 580000 }
+]},
+{ id: 3, nome: "Jardins de Jacarepaguá", construtora: "Construtora Vale Verde", estado: "RJ", uf: "RJ", cidade: "Rio de Janeiro", regiao: "Zona Oeste", bairro: "Jacarepaguá", endereco: "Estrada do Pau Ferro, Jacarepaguá", lazer_nivel: "basico", lazer: "basico", previsao_entrega: "2027-03", entrega: "03/2027", comissao_pf: 3, comissao_pj: 4, comissaoPF: "3%", comissaoPJ: "4%", situacao: "disponivel", origem: "curada", img: "prop-img-3",
+tipologias: [
+{ dorm: 2, suites: 1, area: 52, vagas: 1, varanda: false, gourmet: false, preco: 320000 },
+{ dorm: 3, suites: 1, area: 66, vagas: 2, varanda: true, gourmet: false, preco: 410000 }
+]},
+{ id: 4, nome: "Torre Copacabana Prime", construtora: "Construtora Bossa", estado: "RJ", uf: "RJ", cidade: "Rio de Janeiro", regiao: "Zona Sul", bairro: "Copacabana", endereco: "Av. Atlântica, Copacabana", lazer_nivel: "completo", lazer: "completo", previsao_entrega: "2028-09", entrega: "09/2028", comissao_pf: 3.5, comissao_pj: 4.5, comissaoPF: "3,5%", comissaoPJ: "4,5%", situacao: "disponivel", origem: "curada", img: "prop-img-4",
+tipologias: [
+{ dorm: 3, suites: 3, area: 110, vagas: 3, varanda: true, gourmet: true, preco: 1450000 },
+{ dorm: 4, suites: 4, area: 145, vagas: 4, varanda: true, gourmet: true, preco: 2100000 }
+]},
+{ id: 5, nome: "Reserva Tijuca", construtora: "Construtora Horizonte", estado: "RJ", uf: "RJ", cidade: "Rio de Janeiro", regiao: "Zona Norte", bairro: "Tijuca", endereco: "Rua Conde de Bonfim, Tijuca", lazer_nivel: "basico", lazer: "basico", previsao_entrega: "2027-11", entrega: "11/2027", comissao_pf: 2, comissao_pj: 3, comissaoPF: "2%", comissaoPJ: "3%", situacao: "disponivel", origem: "curada", img: "prop-img-5",
+tipologias: [
+{ nome: "Studio compacto", dorm: 1, suites: 0, area: 28, vagas: 0, varanda: false, gourmet: false, preco: 215000 },
+{ nome: "1 dormitório", dorm: 1, suites: 0, area: 38, vagas: 1, varanda: false, gourmet: false, preco: 245000 },
+{ dorm: 2, suites: 1, area: 61, vagas: 1, varanda: true, gourmet: false, preco: 395000 }
+]},
+{ id: 6, nome: "Alto Botafogo Club", construtora: "Construtora Atlântica", estado: "RJ", uf: "RJ", cidade: "Rio de Janeiro", regiao: "Zona Sul", bairro: "Botafogo", endereco: "Rua Voluntários da Pátria, Botafogo", lazer_nivel: "clube", lazer: "clube", previsao_entrega: "2029-05", entrega: "05/2029", comissao_pf: 3, comissao_pj: 4, comissaoPF: "3%", comissaoPJ: "4%", situacao: "disponivel", origem: "curada", img: "prop-img-6",
+tipologias: [
+{ dorm: 2, suites: 2, area: 78, vagas: 2, varanda: true, gourmet: true, preco: 780000 },
+{ dorm: 3, suites: 2, area: 95, vagas: 2, varanda: true, gourmet: true, preco: 980000 }
+]},
+{ id: 7, nome: "Residencial Paulista Garden", construtora: "Construtora Bossa", estado: "SP", uf: "SP", cidade: "São Paulo", regiao: "Centro e arredores", bairro: "Bela Vista", endereco: "Rua Augusta, Bela Vista", lazer_nivel: "completo", lazer: "completo", previsao_entrega: "2028-08", entrega: "08/2028", comissao_pf: 3, comissao_pj: 4, comissaoPF: "3%", comissaoPJ: "4%", situacao: "disponivel", origem: "curada", img: "prop-img-1",
+tipologias: [
+{ nome: "Studio", dorm: 1, suites: 0, area: 30, vagas: 0, varanda: false, gourmet: false, preco: 340000 },
+{ dorm: 2, suites: 1, area: 65, vagas: 1, varanda: true, gourmet: false, preco: 720000 }
+]},
+{ id: 8, nome: "Vila Madalena Lofts", construtora: "Construtora Vale Verde", estado: "SP", uf: "SP", cidade: "São Paulo", regiao: "Zona Oeste", bairro: "Vila Madalena", endereco: "Rua Harmonia, Vila Madalena", lazer_nivel: "basico", lazer: "basico", previsao_entrega: "2027-04", entrega: "04/2027", comissao_pf: 2.5, comissao_pj: 3.5, comissaoPF: "2,5%", comissaoPJ: "3,5%", situacao: "ultimas_unidades", origem: "curada", img: "prop-img-2",
+tipologias: [
+{ nome: "Studio", dorm: 1, suites: 0, area: 28, vagas: 0, varanda: false, gourmet: false, preco: 295000 },
+{ nome: "1 dormitório", dorm: 1, suites: 0, area: 42, vagas: 1, varanda: true, gourmet: false, preco: 410000 }
+]},
+{ id: 9, nome: "Savassi Prime Residence", construtora: "Construtora Horizonte", estado: "MG", uf: "MG", cidade: "Belo Horizonte", regiao: "Centro-Sul", bairro: "Savassi", endereco: "Rua Pernambuco, Savassi", lazer_nivel: "clube", lazer: "clube", previsao_entrega: "2028-10", entrega: "10/2028", comissao_pf: 3, comissao_pj: 4, comissaoPF: "3%", comissaoPJ: "4%", situacao: "disponivel", origem: "curada", img: "prop-img-3",
+tipologias: [
+{ dorm: 3, suites: 2, area: 88, vagas: 2, varanda: true, gourmet: true, preco: 850000 },
+{ dorm: 4, suites: 3, area: 120, vagas: 3, varanda: true, gourmet: true, preco: 1280000 }
+]}
+];
+var CURADA_BASE = BASE_CURADA;
+var EMPREENDIMENTOS = BASE_CURADA.slice();
+var corretorEmps = [];
+function limparCuradaLocal() {
+[STORAGE_BASE, STORAGE_KEY].forEach(function (k) {
+try {
+var raw = localStorage.getItem(k);
+if (!raw) return;
+var arr = JSON.parse(raw);
+if (!Array.isArray(arr)) return;
+var filtrado = arr.filter(function (e) { return e && e.origem !== "curada"; });
+if (filtrado.length !== arr.length) localStorage.setItem(k, JSON.stringify(filtrado));
+} catch (err) { }
+});
+}
+limparCuradaLocal();
+var nextId = 100;
+var HIST_KEY = HIST_BASE;
+var editandoId = null;
+var filtroMeus = "";
+
+function normTxt(s) {
+return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+function carregarHistorico() {
+try {
+var raw = localStorage.getItem(HIST_KEY);
+var arr = raw ? JSON.parse(raw) : [];
+return Array.isArray(arr) ? arr : [];
+} catch (err) { return []; }
+}
+function salvarHistorico(arr) {
+try { localStorage.setItem(HIST_KEY, JSON.stringify(arr)); } catch (err) { }
+}
+function normRegiao(s) {
+var pequenas = ["de", "da", "do", "das", "dos", "e"];
+return String(s || "").trim().replace(/\s+/g, " ").split(" ").map(function (w, i) {
+var lw = w.toLowerCase();
+if (i > 0 && pequenas.indexOf(lw) !== -1) return lw;
+return lw.charAt(0).toUpperCase() + lw.slice(1);
+}).join(" ");
+}
+function registrarHistorico(lista) {
+var arr = carregarHistorico();
+arr.unshift({
+id: Date.now(),
+data_hora: new Date().toISOString(),
+bairros: estado.bairros.length ? estado.bairros.slice() : "Todos",
+regiao: estado.regiao || "",
+cidade: estado.cidade || "",
+area_min: estado.areaMin,
+area_max: estado.areaMax,
+vagas_minimas: estado.vagas,
+preco_maximo: estado.preco,
+quantidade_resultados: lista.length,
+nomes_resultados: lista.slice(0, 10).map(function (i) { return i.emp.nome; })
+});
+salvarHistorico(arr.slice(0, 100));
+}
+function fmtDataHora(iso) {
+var d = new Date(iso);
+var p = function (n) { return String(n).padStart(2, "0"); };
+return p(d.getDate()) + "/" + p(d.getMonth() + 1) + "/" + d.getFullYear() + " às " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+function fmtDataCsv(iso) {
+var d = new Date(iso);
+var p = function (n) { return String(n).padStart(2, "0"); };
+return p(d.getDate()) + "/" + p(d.getMonth() + 1) + "/" + d.getFullYear() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+function lerLS(k) {
+try { return localStorage.getItem(k); } catch (err) { return null; }
+}
+function gravarLS(k, v) {
+try { localStorage.setItem(k, v); } catch (err) { }
+}
+function removerLS(k) {
+try { localStorage.removeItem(k); } catch (err) { }
+}
+function normCodigo(s) {
+return String(s || "").replace(/\s+/g, "").toUpperCase();
+}
+function codigoValido(c) {
+return /^COR-.{4,}$/.test(c);
+}
+function lerCorretorSalvo() {
+try {
+var raw = localStorage.getItem(CORRETOR_KEY);
+if (!raw) return null;
+var o = JSON.parse(raw);
+return o && o.codigo ? o : null;
+} catch (err) { return null; }
+}
+function definirCorretor(obj) {
+CORRETOR = obj;
+var cod = obj.codigo;
+STORAGE_KEY = STORAGE_BASE + "_" + cod;
+HIST_KEY = HIST_BASE + "_" + cod;
+gravarLS(CORRETOR_KEY, JSON.stringify(obj));
+migrarDados();
+}
+function migrarDados() {
+var flagE = STORAGE_KEY + "_migrado";
+if (lerLS(STORAGE_BASE) !== null && lerLS(STORAGE_KEY) === null) gravarLS(STORAGE_KEY, lerLS(STORAGE_BASE));
+if (lerLS(HIST_BASE) !== null && lerLS(HIST_KEY) === null) gravarLS(HIST_KEY, lerLS(HIST_BASE));
+}
+function carregarCorretor() {
+try {
+var raw = localStorage.getItem(STORAGE_KEY);
+if (!raw) return [];
+var arr = JSON.parse(raw);
+return Array.isArray(arr) ? arr.filter(function (e) { return e && e.origem !== "curada"; }) : [];
+} catch (err) { return []; }
+}
+function salvarCorretor() {
+try { localStorage.setItem(STORAGE_KEY, JSON.stringify(corretorEmps)); } catch (err) { }
+}
+function atualizarIdent() {
+var bar = $("ident-bar");
+bar.hidden = !CORRETOR;
+if (!CORRETOR) return;
+var visit = CORRETOR.codigo === "VISITANTE";
+$("ident-texto").textContent = visit ? "Visitante" : (CORRETOR.nome + " · " + CORRETOR.codigo);
+$("ident-badge").hidden = !visit;
+}
+function entrarNoApp() {
+$("onboard").hidden = true;
+corretorEmps = carregarCorretor();
+recalcularLista();
+atualizarIdent();
+mostrar("form");
+}
+function mostrarOnboard() {
+$("onboard").hidden = false;
+$("ident-bar").hidden = true;
+}
+function confirmarCodigo() {
+var cod = normCodigo($("ob-codigo").value);
+if (!codigoValido(cod)) {
+$("ob-erro").textContent = "Código inválido. Use o formato COR-XXXX.";
+$("ob-erro").hidden = false;
+return;
+}
+var nome = $("ob-nome").value.trim() || ("Corretor " + cod);
+definirCorretor({ codigo: cod, nome: nome, entrou_em: new Date().toISOString() });
+entrarNoApp();
+}
+function entrarVisitante() {
+definirCorretor({ codigo: "VISITANTE", nome: "Visitante", entrou_em: new Date().toISOString() });
+entrarNoApp();
+}
+function exportarBackup() {
+var codArq = CORRETOR ? CORRETOR.codigo : "VISITANTE";
+var dados = {
+versao: 1,
+exportado_em: new Date().toISOString(),
+corretor: { codigo: codArq, nome: CORRETOR ? CORRETOR.nome : "Visitante" },
+empreendimentos: corretorEmps,
+historico: carregarHistorico()
+};
+var blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+var d = new Date();
+var p = function (n) { return String(n).padStart(2, "0"); };
+var dataStr = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+var a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "backup-match-imobiliario-" + codArq + "-" + dataStr + ".json";
+document.body.appendChild(a);
+a.click();
+setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+toast("Backup exportado.");
+}
+var backupPendente = null;
+function lerArquivoBackup(file) {
+if (!file) return;
+var r = new FileReader();
+r.onload = function () {
+var obj = null;
+try { obj = JSON.parse(r.result); } catch (err) { obj = null; }
+if (!obj || typeof obj !== "object" || obj.versao === undefined || !Array.isArray(obj.empreendimentos)) {
+toast("Arquivo de backup inválido.", true);
+return;
+}
+backupPendente = obj;
+var hist = Array.isArray(obj.historico) ? obj.historico : [];
+$("imp-resumo").textContent = "Backup com " + obj.empreendimentos.length + " empreendimentos e " + hist.length + " buscas. Escolha como restaurar.";
+$("modal-import").hidden = false;
+};
+r.onerror = function () { toast("Arquivo de backup inválido.", true); };
+r.readAsText(file);
+}
+function aplicarBackup(modo) {
+if (!backupPendente) return;
+var obj = backupPendente;
+backupPendente = null;
+var hist = Array.isArray(obj.historico) ? obj.historico : [];
+var emps = obj.empreendimentos;
+if (modo === "substituir") {
+corretorEmps = emps.slice();
+salvarHistorico(hist.slice(0, 100));
+} else {
+var ids = {};
+corretorEmps.forEach(function (e) { ids[e.id] = true; });
+emps.forEach(function (e) { if (!ids[e.id]) { corretorEmps.push(e); ids[e.id] = true; } });
+var atuais = carregarHistorico();
+var idsH = {};
+atuais.forEach(function (h) { idsH[h.id] = true; });
+hist.forEach(function (h) { if (!idsH[h.id]) atuais.push(h); });
+atuais.sort(function (a, b) { return String(b.data_hora).localeCompare(String(a.data_hora)); });
+salvarHistorico(atuais.slice(0, 100));
+}
+salvarCorretor();
+recalcularLista();
+$("modal-import").hidden = true;
+$("file-backup").value = "";
+renderMeus();
+render();
+toast("Backup restaurado: " + corretorEmps.length + " empreendimentos e " + carregarHistorico().length + " buscas.");
+}
+function limparTudo() {
+if (!window.confirm("Apagar TODOS os dados deste corretor (empreendimentos e histórico)? Esta ação não pode ser desfeita.")) return;
+var digitado = window.prompt('Para confirmar, digite APAGAR:');
+if (digitado !== "APAGAR") { toast("Exclusão cancelada.", true); return; }
+corretorEmps = [];
+salvarCorretor();
+salvarHistorico([]);
+recalcularLista();
+$("modal-config").hidden = true;
+renderMeus();
+render();
+toast("Todos os dados foram apagados.");
+}
+function abrirConfig() {
+$("cfg-corretor").textContent = CORRETOR ? (CORRETOR.nome + " · código " + CORRETOR.codigo) : "Visitante";
+$("modal-config").hidden = false;
+}
+function sairApp() {
+if (!window.confirm("Sair do app? Seus dados permanecem salvos neste dispositivo.")) return;
+$("modal-config").hidden = true;
+removerLS(CORRETOR_KEY);
+CORRETOR = null;
+STORAGE_KEY = STORAGE_BASE;
+HIST_KEY = HIST_BASE;
+corretorEmps = [];
+recalcularLista();
+$("ob-codigo").value = "";
+$("ob-nome").value = "";
+$("ob-erro").hidden = true;
+mostrarOnboard();
+}
+function recalcularLista() {
+EMPREENDIMENTOS = BASE_CURADA.concat(corretorEmps);
+}
+
+// Vizinhança para sugestão de bairros
+var VIZINHOS = {
+"Barra da Tijuca": ["Recreio", "Jacarepaguá"],
+"Recreio": ["Barra da Tijuca", "Jacarepaguá"],
+"Jacarepaguá": ["Barra da Tijuca", "Recreio", "Campo Grande"],
+"Copacabana": ["Ipanema", "Botafogo"],
+"Tijuca": ["Méier", "Botafogo"],
+"Botafogo": ["Copacabana", "Tijuca", "Ipanema"],
+"Ipanema": ["Leblon", "Copacabana", "Botafogo"],
+"Leblon": ["Ipanema"],
+"Méier": ["Tijuca"],
+"Campo Grande": ["Jacarepaguá"]
+};
+var BAIRROS = ["Barra da Tijuca", "Recreio", "Jacarepaguá", "Copacabana", "Tijuca", "Botafogo", "Ipanema", "Leblon", "Méier", "Campo Grande"];
+
+var PADRAO = { uf: "RJ", cidade: "Rio de Janeiro", bairros: [], regiao: "", areaMin: 40, areaMax: 200, vagas: 2, preco: 800000 };
+var estado = JSON.parse(JSON.stringify(PADRAO));
+var ultimoTexto = "";
+
+function $(id) { return document.getElementById(id); }
+
+function fmtBRL(v) {
+return "R$ " + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+function parsePreco(txt) {
+var d = String(txt).replace(/\D/g, "");
+return d ? parseInt(d, 10) : 0;
+}
+var toastTimer = null;
+function toast(msg, isErr) {
+var el = $("toast-top");
+el.textContent = msg;
+el.classList.toggle("error", !!isErr);
+el.classList.add("show");
+clearTimeout(toastTimer);
+toastTimer = setTimeout(function () { el.classList.remove("show"); }, 3000);
+}
+
+// Filtro principal
+function filtrar(params) {
+var res = [];
+EMPREENDIMENTOS.forEach(function (e) {
+if (e.situacao === "esgotado") return;
+if (params.uf && ufDoEmp(e) !== params.uf) return;
+if (params.cidade && e.cidade !== params.cidade) return;
+if (params.regiao && (e.regiao || "") !== params.regiao) return;
+if (params.bairros.length && params.bairros.indexOf(e.bairro) === -1) return;
+e.tipologias.forEach(function (t) {
+if (!(t.area >= params.areaMin && t.area <= params.areaMax)) return;
+if (!(t.vagas >= params.vagas)) return;
+if (!(t.preco <= params.preco)) return;
+var exato = t.preco <= params.preco && t.area >= params.areaMin && t.area <= params.areaMax;
+var distPreco = Math.max(0, t.preco - params.preco);
+res.push({ emp: e, t: t, exato: exato, dist: distPreco });
+});
+});
+res.sort(function (a, b) {
+if (a.exato !== b.exato) return a.exato ? -1 : 1;
+return a.dist - b.dist;
+});
+return res;
+}
+
+function contar(params) { return filtrar(params).length; }
+
+function paramsAtuais() {
+return {
+uf: estado.uf || "",
+cidade: estado.cidade || "",
+regiao: estado.regiao || "",
+bairros: estado.bairros.slice(),
+areaMin: estado.areaMin,
+areaMax: estado.areaMax,
+vagas: estado.vagas,
+preco: estado.preco
+};
+}
+
+function fmtVagas(v) {
+var n = Number(v);
+if (n === 0) return "Sem vaga";
+if (n === 1) return "1 vaga";
+return n + " vagas";
+}
+
+function lazerBadge(l) {
+var map = { sem: ["Sem lazer", "badge-lazer-sem"], basico: ["Básico", "badge-lazer-basico"], completo: ["Completo", "badge-lazer-completo"], clube: ["Clube", "badge-lazer-clube"] };
+var m = map[l] || map.sem;
+return '<span class="badge ' + m[1] + '">' + m[0] + '</span>';
+}
+function origemBadge(o) {
+return o === "curada" ? '<span class="badge badge-origem-curada">Base curada</span>' : '<span class="badge badge-origem-minha">Minha base</span>';
+}
+function situacaoBadge(s) {
+if (s === "disponivel") return '<span class="badge badge-sit-disponivel">Disponível</span>';
+if (s === "ultimas_unidades") return '<span class="badge badge-sit-ultimas">Últimas unidades</span>';
+return '<span class="badge badge-sit-esgotado">Esgotado</span>';
+}
+
+function renderCard(item) {
+var e = item.emp, t = item.t;
+var suites = t.suites;
+var nomeTip = t.nome ? '<p class="prop-small" style="font-weight:600;color:var(--accent);margin:0 0 2px;">' + escHtml(t.nome) + '</p>' : '';
+return '<article class="prop-card">' +
+'<div class="prop-img ' + e.img + '">' + e.nome + '</div>' +
+'<div class="prop-body">' +
+'<h3 class="prop-name">' + e.nome + '</h3>' +
+nomeTip +
+'<p class="prop-meta">' + e.construtora + '</p>' +
+'<p class="prop-meta">' + escHtml(e.bairro) + ' · ' + escHtml(e.cidade) + (e.regiao ? ' <span class="badge badge-lazer-basico">' + escHtml(e.regiao) + '</span>' : '') + '</p>' +
+'<div class="prop-specs">' +
+'<div>Área útil<strong>' + t.area + ' m²</strong></div>' +
+'<div>Dormitórios<strong>' + t.dorm + (suites ? ' (' + suites + ' suíte' + (suites > 1 ? 's' : '') + ')' : '') + '</strong></div>' +
+'<div>Vagas<strong>' + fmtVagas(t.vagas) + '</strong></div>' +
+'<div>Varanda / gourmet<strong>' + (t.varanda ? 'Sim' : 'Não') + ' / ' + (t.gourmet ? 'Sim' : 'Não') + '</strong></div>' +
+'</div>' +
+'<div class="prop-badges">' + lazerBadge(e.lazer) + origemBadge(e.origem) + situacaoBadge(e.situacao) + '</div>' +
+'<p class="prop-small">Preço a partir de</p>' +
+'<p class="prop-price">a partir de ' + fmtBRL(t.preco) + '</p>' +
+'<div class="prop-footer">' +
+'<p class="prop-small">Entrega prevista: <strong>' + e.entrega + '</strong></p>' +
+'<p class="prop-small">Comissão PF ' + e.comissaoPF + ' · PJ ' + e.comissaoPJ + '</p>' +
+'</div>' +
+'</div>' +
+'</article>';
+}
+
+function render() {
+var params = paramsAtuais();
+var lista = filtrar(params);
+var n = lista.length;
+$("contador").textContent = n + (n === 1 ? " lançamento compatível" : " lançamentos compatíveis");
+$("hero-valor").textContent = String(n);
+$("hero-caption").textContent = n === 1 ? "tipologia compatível com o perfil do cliente" : "tipologias compatíveis com o perfil do cliente";
+$("lista-resultados").innerHTML = lista.map(renderCard).join("");
+$("bloco-vazio").hidden = n > 0;
+$("perfil-resumo").textContent = resumoPerfil();
+}
+
+function resumoPerfil() {
+var b = estado.bairros.length ? estado.bairros.join(", ") : "todos os bairros";
+if (estado.regiao) b = "Região " + estado.regiao + " · " + b;
+var v = estado.vagas === 0 ? "sem vaga (0)" : (estado.vagas >= 4 ? "4 ou mais" : estado.vagas + (estado.vagas === 1 ? " vaga" : " vagas"));
+return "Bairros: " + b + " · Área: " + estado.areaMin + " a " + estado.areaMax + " m² · Vagas: " + v + " (inegociável) · Até " + fmtBRL(estado.preco);
+}
+
+function lerFormulario() {
+estado.areaMin = parseInt($("area-min").value, 10) || 0;
+estado.areaMax = parseInt($("area-max").value, 10) || 0;
+estado.preco = parsePreco($("preco-max").value);
+var r = document.querySelector('input[name="vagas"]:checked');
+estado.vagas = r ? parseInt(r.value, 10) : 2;
+}
+
+function bairrosDaCidade() {
+var cid = estado.cidade || "";
+var lista = [];
+EMPREENDIMENTOS.forEach(function (e) {
+if (cid && e.cidade !== cid) return;
+if (lista.indexOf(e.bairro) === -1) lista.push(e.bairro);
+});
+return lista.length ? lista : BAIRROS;
+}
+function regioesDaCidade() {
+var cid = estado.cidade || "";
+var lista = [];
+EMPREENDIMENTOS.forEach(function (e) {
+if (cid && e.cidade !== cid) return;
+if (e.regiao && lista.indexOf(e.regiao) === -1) lista.push(e.regiao);
+});
+return lista.sort();
+}
+function ufDoEmp(e) {
+if (e.uf) return e.uf;
+return "RJ";
+}
+function contagemPorUf() {
+var c = {};
+EMPREENDIMENTOS.forEach(function (e) {
+if (e.situacao === "esgotado") return;
+var uf = ufDoEmp(e);
+c[uf] = (c[uf] || 0) + 1;
+});
+return c;
+}
+function cidadesDoEstado() {
+var uf = estado.uf || "";
+var lista = [];
+EMPREENDIMENTOS.forEach(function (e) {
+if (ufDoEmp(e) !== uf) return;
+if (lista.indexOf(e.cidade) === -1) lista.push(e.cidade);
+});
+return lista.sort();
+}
+function renderEstados() {
+var sel = $("sel-estado");
+var cont = contagemPorUf();
+var html = '<option value="">Selecione o estado</option>';
+UFS.slice().sort().forEach(function (uf) {
+var n = cont[uf] || 0;
+html += '<option value="' + uf + '">' + uf + (n ? ' (' + n + ')' : '') + '</option>';
+});
+sel.innerHTML = html;
+sel.value = estado.uf || "";
+}
+function renderCidades() {
+var sel = $("sel-cidade");
+var uf = estado.uf || "";
+if (!uf) {
+sel.innerHTML = '<option value="">Selecione o estado primeiro</option>';
+sel.disabled = true;
+estado.cidade = "";
+return;
+}
+var cids = cidadesDoEstado();
+if (!cids.length) {
+sel.innerHTML = '<option value="">Nenhuma cidade cadastrada neste estado</option>';
+sel.disabled = true;
+estado.cidade = "";
+return;
+}
+var html = '<option value="">Selecione a cidade</option>';
+cids.forEach(function (c) {
+html += '<option value="' + escHtml(c) + '">' + escHtml(c) + '</option>';
+});
+sel.innerHTML = html;
+sel.disabled = false;
+if (estado.cidade && cids.indexOf(estado.cidade) === -1) estado.cidade = "";
+sel.value = estado.cidade || "";
+}
+function renderRegioes() {
+var sel = $("sel-regiao");
+var cid = estado.cidade || "";
+if (!cid) {
+sel.innerHTML = '<option value="">Selecione a cidade primeiro</option>';
+sel.disabled = true;
+estado.regiao = "";
+return;
+}
+var regs = regioesDaCidade();
+if (!regs.length) {
+sel.innerHTML = '<option value="">Todas as regiões</option>';
+sel.disabled = true;
+estado.regiao = "";
+return;
+}
+var html = '<option value="">Todas as regiões</option>';
+regs.forEach(function (r) {
+html += '<option value="' + escHtml(r) + '">' + escHtml(r) + '</option>';
+});
+sel.innerHTML = html;
+sel.disabled = false;
+if (estado.regiao && regs.indexOf(estado.regiao) === -1) estado.regiao = "";
+sel.value = estado.regiao;
+}
+function renderLocalizacao() {
+renderEstados();
+renderCidades();
+renderRegioes();
+renderBairros($("bairro-busca").value);
+atualizarBaseCobertura();
+}
+function atualizarBaseCobertura() {
+var emps = EMPREENDIMENTOS.filter(function (e) { return e.situacao !== "esgotado"; });
+var cids = {}, ufs = {};
+emps.forEach(function (e) { cids[e.cidade] = true; ufs[ufDoEmp(e)] = true; });
+$("base-cover").textContent = "Base: " + emps.length + " empreendimentos em " + Object.keys(cids).length + " cidades de " + Object.keys(ufs).length + " estados";
+}
+function bairrosDaRegiao() {
+var cid = estado.cidade || "";
+var lista = [];
+EMPREENDIMENTOS.forEach(function (e) {
+if (cid && e.cidade !== cid) return;
+if (e.regiao !== estado.regiao) return;
+if (lista.indexOf(e.bairro) === -1) lista.push(e.bairro);
+});
+return lista;
+}
+function renderBairros(filtro) {
+var box = $("bairros-checks");
+var f = (filtro || "").toLowerCase();
+var base = bairrosDaCidade();
+if (estado.regiao) {
+var daRegiao = bairrosDaRegiao();
+if (daRegiao.length) base = daRegiao;
+}
+box.innerHTML = base.filter(function (b) { return b.toLowerCase().indexOf(f) !== -1; }).map(function (b) {
+var on = estado.bairros.indexOf(b) !== -1 ? " checked" : "";
+return '<label class="check-row"><input type="checkbox" value="' + b + '"' + on + '> ' + b + '</label>';
+}).join("");
+$("bairros-resumo").textContent = estado.bairros.length
+? estado.bairros.length + " bairro(s) selecionado(s): " + estado.bairros.join(", ")
+: "Nenhum bairro selecionado: considerando todos.";
+}
+
+function atualizarRadios() {
+document.querySelectorAll(".radio-option").forEach(function (l) {
+var inp = l.querySelector("input");
+l.classList.toggle("selected", inp.checked);
+});
+}
+
+function mostrar(tela) {
+$("screen-form").hidden = tela !== "form";
+$("screen-results").hidden = tela !== "results";
+$("screen-cadastro").hidden = tela !== "cadastro";
+$("screen-meus").hidden = tela !== "meus";
+$("screen-historico").hidden = tela !== "historico";
+$("screen-painel").hidden = tela !== "painel";
+$("sticky-send").hidden = tela !== "results";
+document.querySelectorAll(".nav-btn").forEach(function (b) {
+var ativo = b.getAttribute("data-nav") === tela || (tela === "results" && b.getAttribute("data-nav") === "form");
+if (ativo) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+});
+window.scrollTo(0, 0);
+if (tela === "meus") renderMeus();
+if (tela === "historico") renderHistorico();
+if (tela === "painel") renderPainel();
+if (tela === "cadastro") ensureTip();
+}
+
+function montarMensagem() {
+var lista = filtrar(paramsAtuais());
+var bairros = estado.bairros.length ? estado.bairros.join(", ") : "Todos";
+var v = estado.vagas === 0 ? "Sem vaga" : (estado.vagas >= 4 ? "4 ou mais" : fmtVagas(estado.vagas));
+var linhas = [
+"Olá! Fiz uma busca no Match Imobiliário e gostei dos resultados.",
+"",
+"PERFIL DA BUSCA:",
+"- Bairros: " + bairros,
+"- Área: " + estado.areaMin + " m² a " + estado.areaMax + " m²",
+"- Vagas mínimas: " + v,
+"- Orçamento: até R$ " + Math.round(estado.preco).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."),
+"",
+"LANÇAMENTOS COMPATÍVEIS (" + lista.length + "):"
+];
+lista.slice(0, 5).forEach(function (i) {
+linhas.push("- " + i.emp.nome + " — " + i.emp.bairro + " — " + i.t.area + " m², " + i.t.dorm + " dorm, " + fmtVagas(i.t.vagas) + " — a partir de " + fmtBRL(i.t.preco));
+});
+linhas.push("", "Pode me ajudar a agendar uma visita?");
+return linhas.join("\n");
+}
+
+function enviarWhats() {
+var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(montarMensagem());
+window.open(url, "_blank");
+}
+
+function renderMeus() {
+var lista = $("lista-meus");
+if (!corretorEmps.length) {
+lista.innerHTML = "";
+$("meus-vazio").hidden = false;
+$("meus-contador").textContent = "0 empreendimentos cadastrados";
+$("busca-vazia").hidden = true;
+return;
+}
+$("meus-vazio").hidden = true;
+var items = aplicarBuscaMeus();
+lista.innerHTML = items.map(function (e) {
+var precos = e.tipologias.map(function (t) { return Number(t.preco); });
+var min = Math.min.apply(null, precos), max = Math.max.apply(null, precos);
+var faixa = min === max ? fmtBRL(min) : fmtBRL(min) + " a " + fmtBRL(max);
+return '<article class="emp-list-card">' +
+'<h3 class="emp-list-title">' + escHtml(e.nome) + '</h3>' +
+'<p class="prop-meta">' + escHtml(e.construtora) + ' · ' + escHtml(e.bairro) + '</p>' +
+'<p class="prop-meta">' + e.tipologias.length + ' tipologia(s) · ' + faixa + '</p>' +
+'<div class="prop-badges">' + situacaoBadge(e.situacao) + origemBadge(e.origem) + '</div>' +
+'<div class="emp-actions"><button type="button" class="btn" data-variant="outline" data-edit="' + e.id + '">' +
+'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Editar</button>' +
+'<button type="button" class="btn btn-danger" data-del="' + e.id + '">Excluir</button></div>' +
+'</article>';
+}).join("");
+}
+
+function escHtml(s) {
+return String(s).replace(/[&<>"']/g, function (c) {
+return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+});
+}
+
+function ensureTip() {
+if (!$("tipologias-box").children.length) addTipCard();
+}
+
+var tipCount = 0;
+function addTipCard() {
+tipCount++;
+var n = tipCount;
+var div = document.createElement("div");
+div.className = "tip-card";
+div.setAttribute("data-tip", "1");
+div.innerHTML =
+'<button type="button" class="btn tip-remove" data-variant="ghost" aria-label="Remover tipologia">' +
+'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg> Remover</button>' +
+'<h4 style="margin:0 0 10px;font-size:15px;">Tipologia ' + n + '</h4>' +
+'<div class="field"><label for="t' + n + '-nome">Nome da tipologia</label><input class="input" id="t' + n + '-nome" data-k="nome" type="text" placeholder="ex: 2 dormitórios"></div>' +
+'<div class="row-2">' +
+'<div class="field"><label for="t' + n + '-area">Área útil m² *</label><input class="input" id="t' + n + '-area" data-k="area" type="number" min="0" step="1"><p class="field-error" hidden></p></div>' +
+'<div class="field"><label for="t' + n + '-dorm">Dormitórios *</label><input class="input" id="t' + n + '-dorm" data-k="dorm" type="number" min="0" step="1"><p class="field-error" hidden></p></div>' +
+'<div class="field"><label for="t' + n + '-suites">Suítes *</label><input class="input" id="t' + n + '-suites" data-k="suites" type="number" min="0" step="1"><p class="field-error" hidden></p></div>' +
+'<div class="field"><label for="t' + n + '-vagas">Vagas *</label><input class="input" id="t' + n + '-vagas" data-k="vagas" type="number" min="0" step="1"><p class="helper">Digite 0 para studios sem vaga.</p><p class="field-error" hidden></p></div>' +
+'</div>' +
+'<div class="row-2">' +
+'<label class="check-row"><input type="checkbox" data-k="varanda"> Varanda</label>' +
+'<label class="check-row"><input type="checkbox" data-k="gourmet"> Varanda gourmet</label>' +
+'</div>' +
+'<div class="field" style="margin-top:12px;"><label for="t' + n + '-preco">Preço a partir de R$ *</label><input class="input" id="t' + n + '-preco" data-k="preco" type="number" min="0" step="1000"><p class="field-error" hidden></p></div>' +
+'<div class="field"><label for="t' + n + '-outras">Outras características</label><input class="input" id="t' + n + '-outras" data-k="outras" type="text"></div>';
+$("tipologias-box").appendChild(div);
+}
+
+function lerTipologias() {
+return Array.prototype.map.call($("tipologias-box").querySelectorAll(".tip-card"), function (card) {
+function v(k) { return card.querySelector('[data-k="' + k + '"]'); }
+var vVal = v("vagas").value.trim();
+return {
+nomeTip: v("nome").value.trim(),
+area: parseFloat(v("area").value) || 0,
+dorm: parseInt(v("dorm").value, 10) || 0,
+suites: parseInt(v("suites").value, 10) || 0,
+vagas: vVal === "" ? null : (parseInt(vVal, 10) || 0),
+varanda: v("varanda").checked,
+gourmet: v("gourmet").checked,
+preco: parseFloat(v("preco").value) || 0,
+outras: v("outras").value.trim(),
+_card: card
+};
+});
+}
+
+function setErr(input, msg) {
+var p = input.parentElement.querySelector(".field-error");
+if (msg) {
+input.classList.add("invalid");
+input.setAttribute("aria-invalid", "true");
+if (p) { p.textContent = msg; p.hidden = false; }
+} else {
+input.classList.remove("invalid");
+input.removeAttribute("aria-invalid");
+if (p) { p.textContent = ""; p.hidden = true; }
+}
+}
+
+function validarCadastro() {
+var ok = true, primeiro = null;
+function chk(id, cond, msg) {
+var el = $(id);
+var bad = !cond;
+setErr(el, bad ? msg : "");
+if (bad) { ok = false; if (!primeiro) primeiro = el; }
+}
+chk("f-nome", $("f-nome").value.trim(), "Informe o nome do empreendimento.");
+chk("f-construtora", $("f-construtora").value.trim(), "Informe a construtora.");
+chk("f-bairro", $("f-bairro").value.trim(), "Informe o bairro.");
+chk("f-cidade", $("f-cidade").value.trim(), "Informe a cidade.");
+chk("f-endereco", $("f-endereco").value.trim(), "Informe o endereço completo.");
+chk("f-lazer", $("f-lazer").value, "Selecione o nível de lazer.");
+chk("f-entrega", $("f-entrega").value, "Informe a previsão de entrega.");
+chk("f-pf", $("f-pf").value !== "", "Informe a comissão PF.");
+chk("f-pj", $("f-pj").value !== "", "Informe a comissão PJ.");
+
+var tips = lerTipologias();
+var algumaValida = false;
+tips.forEach(function (t) {
+var card = t._card;
+var vRaw = card.querySelector('[data-k="vagas"]').value.trim();
+var ids = {
+area: t.area > 0,
+dorm: card.querySelector('[data-k="dorm"]').value.trim() !== "",
+suites: card.querySelector('[data-k="suites"]').value.trim() !== "",
+vagas: vRaw !== "",
+preco: t.preco > 0
+};
+var areaEl = card.querySelector('[data-k="area"]');
+var dormEl = card.querySelector('[data-k="dorm"]');
+var suEl = card.querySelector('[data-k="suites"]');
+var vEl = card.querySelector('[data-k="vagas"]');
+var pEl = card.querySelector('[data-k="preco"]');
+setErr(areaEl, ids.area ? "" : "Informe a área útil.");
+setErr(dormEl, ids.dorm ? "" : "Informe os dormitórios.");
+setErr(suEl, ids.suites ? "" : "Informe as suítes.");
+setErr(vEl, ids.vagas ? "" : "Informe o número de vagas (use 0 se não houver).");
+setErr(pEl, ids.preco ? "" : "Informe o preço.");
+var completa = ids.area && ids.dorm && ids.suites && ids.vagas && ids.preco;
+if (!completa) { ok = false; if (!primeiro) primeiro = areaEl; }
+if (completa) algumaValida = true;
+});
+$("err-tip").hidden = algumaValida;
+if (!algumaValida) { ok = false; }
+return { ok: ok, tips: tips, foco: primeiro };
+}
+
+function lerArquivoFoto(file, cb) {
+if (!file) { cb(null); return; }
+try {
+var r = new FileReader();
+r.onload = function () { cb(r.result); };
+r.onerror = function () { cb(null); };
+r.readAsDataURL(file);
+} catch (err) { cb(null); }
+}
+
+var fotoAtual = null;
+function salvarEmpreendimento() {
+var v = validarCadastro();
+if (!v.ok) {
+toast("Revise os campos destacados.", true);
+if (v.foco) v.foco.focus();
+return;
+}
+var tipologias = v.tips.filter(function (t) {
+return t.area > 0 && t.dorm !== null && t.vagas !== null && t.preco > 0;
+}).map(function (t) {
+return { nome: t.nomeTip, area: t.area, dorm: t.dorm, suites: t.suites, vagas: t.vagas, varanda: t.varanda, gourmet: t.gourmet, preco: t.preco, outras: t.outras };
+});
+var emp = {
+id: nextId++,
+nome: $("f-nome").value.trim(),
+construtora: $("f-construtora").value.trim(),
+bairro: $("f-bairro").value.trim(),
+regiao: normRegiao($("f-regiao").value),
+cidade: $("f-cidade").value.trim(),
+uf: $("f-uf").value,
+endereco: $("f-endereco").value.trim(),
+lazer: $("f-lazer").value,
+entrega: $("f-entrega").value,
+comissaoPF: $("f-pf").value + "%",
+comissaoPJ: $("f-pj").value + "%",
+origem: "corretor",
+situacao: $("f-situacao").value,
+img: IMG_CLASSES[corretorEmps.length % IMG_CLASSES.length],
+foto: fotoAtual,
+tipologias: tipologias
+};
+if (editandoId !== null) {
+var antigo = corretorEmps.filter(function (x) { return x.id === editandoId; })[0];
+if (antigo) {
+emp.id = antigo.id;
+emp.img = antigo.img;
+emp.origem = "corretor";
+emp.data_criacao = antigo.data_criacao || antigo.dataCriacao || new Date().toISOString();
+emp.data_atualizacao = new Date().toISOString();
+corretorEmps = corretorEmps.map(function (x) { return x.id === editandoId ? emp : x; });
+}
+editandoId = null;
+salvarCorretor();
+recalcularLista();
+resetarCadastro();
+toast("Empreendimento atualizado com sucesso");
+mostrar("meus");
+return;
+}
+emp.data_criacao = new Date().toISOString();
+emp.data_atualizacao = emp.data_criacao;
+corretorEmps.push(emp);
+salvarCorretor();
+recalcularLista();
+resetarCadastro();
+toast("Empreendimento cadastrado com sucesso");
+mostrar("meus");
+}
+
+function resetarCadastro(keepEdit) {
+if (!keepEdit) {
+editandoId = null;
+$("cad-titulo").textContent = "Cadastrar empreendimento";
+$("btn-salvar-emp").textContent = "Salvar empreendimento";
+$("btn-cancelar-edicao").hidden = true;
+}
+$("form-emp").reset();
+$("f-cidade").value = "Rio de Janeiro";
+$("f-uf").value = "RJ";
+$("f-situacao").value = "disponivel";
+$("tipologias-box").innerHTML = "";
+$("f-preview").style.backgroundImage = "";
+fotoAtual = null;
+document.querySelectorAll("#form-emp .invalid").forEach(function (el) { setErr(el, ""); });
+document.querySelectorAll("#form-emp .field-error").forEach(function (p) { p.hidden = true; });
+$("err-tip").hidden = true;
+tipCount = 0;
+addTipCard();
+}
+
+function buscar() {
+lerFormulario();
+render();
+mostrar("results");
+$("sug-resultado").textContent = "";
+var lista = filtrar(paramsAtuais());
+registrarHistorico(lista);
+toast("Busca concluída: " + lista.length + " resultado(s).");
+}
+
+function repetirBusca(h) {
+estado.bairros = Array.isArray(h.bairros) ? h.bairros.slice() : [];
+estado.areaMin = h.area_min;
+estado.areaMax = h.area_max;
+estado.vagas = h.vagas_minimas;
+estado.preco = h.preco_maximo;
+$("area-min").value = h.area_min;
+$("area-max").value = h.area_max;
+$("preco-max").value = fmtBRL(h.preco_maximo);
+var r = document.querySelector('input[name="vagas"][value="' + h.vagas_minimas + '"]');
+if (r) r.checked = true;
+atualizarRadios();
+renderBairros("");
+buscar();
+}
+
+function renderHistorico() {
+var arr = carregarHistorico();
+var lista = $("lista-historico");
+$("historico-vazio").hidden = arr.length > 0;
+$("historico-rodape").hidden = arr.length === 0;
+lista.innerHTML = arr.map(function (h) {
+var b = h.bairros === "Todos" || !h.bairros.length ? "Todos" : (Array.isArray(h.bairros) ? h.bairros.join(", ") : h.bairros);
+var n = h.quantidade_resultados;
+var badge = n > 0
+? '<span class="badge badge-sit-disponivel">' + n + ' compatíveis</span>'
+: '<span class="badge badge-lazer-sem">0 compatíveis</span>';
+var textoVagas = Number(h.vagas_minimas) === 0 ? "sem vaga" : "mín. " + h.vagas_minimas + (Number(h.vagas_minimas) === 1 ? " vaga" : " vagas");
+return '<article class="hist-card">' +
+'<p class="hist-date">' + fmtDataHora(h.data_hora) + '</p>' +
+'<p class="hist-profile">' + escHtml(b) + ' · ' + h.area_min + '–' + h.area_max + ' m² · ' + textoVagas + ' · até ' + fmtBRL(h.preco_maximo) + '</p>' +
+'<div>' + badge + '</div>' +
+'<div class="hist-actions">' +
+'<button type="button" class="btn" data-variant="outline" data-rep="' + h.id + '">Repetir busca</button>' +
+'<button type="button" class="btn btn-danger" data-hdel="' + h.id + '" aria-label="Excluir busca">' +
+'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg> Excluir</button>' +
+'</div></article>';
+}).join("");
+}
+
+function painelBarras(container, items, total) {
+var max = items.length ? items[0][1] : 1;
+container.innerHTML = items.map(function (it) {
+var pct = max ? Math.round((it[1] / max) * 100) : 0;
+return '<div class="hbar-row"><span>' + escHtml(it[0]) + '</span><div class="hbar-track"><div class="hbar-fill" style="width:' + pct + '%"></div></div><span class="hbar-num">' + it[1] + '</span></div>';
+}).join("");
+}
+
+function calcularPainel() {
+var arr = carregarHistorico();
+var n = arr.length;
+var soma = 0, zero = 0;
+var bairrosCount = {};
+var faixas = [0, 0, 0, 0, 0];
+var faixaLabels = ["Até R$ 400 mil", "R$ 400–600 mil", "R$ 600–800 mil", "R$ 800 mil–1 mi", "Acima de R$ 1 mi"];
+var vagas = [0, 0, 0, 0, 0];
+arr.forEach(function (h) {
+var q = Number(h.quantidade_resultados) || 0;
+soma += q;
+if (q === 0) zero++;
+var bs = h.bairros === "Todos" || !h.bairros || !h.bairros.length ? ["Todos os bairros"] : (Array.isArray(h.bairros) ? h.bairros : [h.bairros]);
+bs.forEach(function (b) { bairrosCount[b] = (bairrosCount[b] || 0) + 1; });
+var p = Number(h.preco_maximo) || 0;
+var fi = p <= 400000 ? 0 : p <= 600000 ? 1 : p <= 800000 ? 2 : p <= 1000000 ? 3 : 4;
+faixas[fi]++;
+var vRaw = parseInt(h.vagas_minimas, 10);
+if (isNaN(vRaw) || vRaw < 0) vRaw = 0;
+var vIdx = Math.min(vRaw, 4);
+vagas[vIdx]++;
+});
+var bairrosList = Object.keys(bairrosCount).map(function (k) { return [k, bairrosCount[k]]; })
+.sort(function (a, b) { return b[1] - a[1]; });
+var topBairro = bairrosList.length ? bairrosList[0][0] : "—";
+return {
+n: n, media: n ? (soma / n) : 0, zero: zero, zeroPct: n ? zero / n : 0,
+topBairro: topBairro, bairros: bairrosList.slice(0, 8),
+faixas: faixas, faixaLabels: faixaLabels, vagas: vagas
+};
+}
+
+function contarRegioes() {
+var arr = carregarHistorico();
+var cont = {};
+arr.forEach(function (h) {
+var r = h.regiao;
+if (!r) return;
+cont[r] = (cont[r] || 0) + 1;
+});
+return Object.keys(cont).map(function (k) { return [k, cont[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+}
+function insightsRegioes(total) {
+var out = [];
+contarRegioes().forEach(function (r) {
+var share = total ? r[1] / total : 0;
+if (share <= 0.4) return;
+var n = EMPREENDIMENTOS.filter(function (e) { return e.regiao === r[0] && e.situacao !== "esgotado"; }).length;
+if (n < 2) out.push("A região " + r[0] + " concentra " + Math.round(share * 100) + "% das buscas, mas há apenas " + n + " lançamento(s) cadastrado(s) nela.");
+});
+return out;
+}
+function renderPainel() {
+var d = calcularPainel();
+if (!d.n) {
+$("painel-vazio").hidden = false;
+$("painel-conteudo").hidden = true;
+return;
+}
+$("painel-vazio").hidden = true;
+$("painel-conteudo").hidden = false;
+$("painel-kpis").innerHTML =
+'<div class="painel-kpi"><p class="painel-kpi-label">Buscas realizadas</p><p class="painel-kpi-value">' + d.n + '</p></div>' +
+'<div class="painel-kpi"><p class="painel-kpi-label">Média de compatíveis</p><p class="painel-kpi-value">' + d.media.toFixed(1).replace(".", ",") + '</p></div>' +
+'<div class="painel-kpi"><p class="painel-kpi-label">Buscas sem resultado</p><p class="painel-kpi-value">' + d.zero + '</p><p class="painel-kpi-sub">' + Math.round(d.zeroPct * 100) + '% do total</p></div>' +
+'<div class="painel-kpi"><p class="painel-kpi-label">Bairro mais buscado</p><p class="painel-kpi-value" style="font-size:17px;">' + escHtml(d.topBairro) + '</p></div>';
+painelBarras($("painel-bairros"), d.bairros, d.n);
+var regs = contarRegioes();
+var regBox = $("painel-regioes");
+if (regBox) regBox.innerHTML = regs.length ? regs.slice(0, 8).map(function (r) {
+var pct = Math.round((r[1] / regs[0][1]) * 100);
+return '<div class="hbar-row"><span>' + escHtml(r[0]) + '</span><div class="hbar-track"><div class="hbar-fill" style="width:' + pct + '%"></div></div><span class="hbar-num">' + r[1] + '</span></div>';
+}).join("") : '<p class="note-text">Nenhuma busca com região informada.</p>';
+
+var maxF = Math.max.apply(null, d.faixas);
+$("painel-preco").innerHTML = '<div class="vbars">' + d.faixas.map(function (c, i) {
+var h = maxF ? Math.round((c / maxF) * 150) : 0;
+var top = c === maxF && c > 0 ? " top" : "";
+return '<div class="vbar-col"><span class="vbar-val">' + c + '</span><div class="vbar' + top + '" style="height:' + h + 'px"></div><span class="vbar-label">' + d.faixaLabels[i] + '</span></div>';
+}).join("") + '</div>';
+
+var labelsV = ["0 vagas", "1 vaga", "2 vagas", "3 vagas", "4+ vagas"];
+$("painel-vagas").innerHTML = d.vagas.map(function (c, i) {
+var pct = Math.round((c / d.n) * 100);
+return '<div class="hbar-row"><span>' + labelsV[i] + '</span><div class="hbar-track"><div class="hbar-fill" style="width:' + pct + '%"></div></div><span class="hbar-num">' + pct + '%</span></div>';
+}).join("");
+
+var insights = [];
+var todos = [];
+d.bairros.forEach(function (b) {
+if (b[1] < 2 || b[0] === "Todos os bairros") return;
+var existe = EMPREENDIMENTOS.some(function (e) { return e.bairro === b[0]; });
+if (!existe) insights.push(b[1] + " buscas por " + b[0] + " e nenhum lançamento cadastrado nessa região.");
+});
+if (d.zeroPct > 0.3) insights.push(Math.round(d.zeroPct * 100) + "% das buscas não retornaram nenhum imóvel. Considere ampliar o inventário ou revisar a faixa de preço da base.");
+var idxF = d.faixas.indexOf(maxF);
+if (maxF > 0) {
+var faixaMin = [0, 400001, 600001, 800001, 1000001][idxF];
+var faixaMax = [400000, 600000, 800000, 1000000, Infinity][idxF];
+var temEmp = EMPREENDIMENTOS.some(function (e) {
+return e.situacao !== "esgotado" && e.tipologias.some(function (t) { return t.preco >= faixaMin && t.preco <= faixaMax; });
+});
+if (!temEmp) insights.push("A faixa " + d.faixaLabels[idxF] + " concentra " + Math.round((maxF / d.n) * 100) + "% das buscas, mas não há lançamento cadastrado nessa faixa.");
+}
+
+var pctZeroVagas = d.n ? (d.vagas[0] / d.n) : 0;
+var temStudioZeroVagas = EMPREENDIMENTOS.some(function (e) {
+return e.situacao !== "esgotado" && e.tipologias.some(function (t) { return Number(t.vagas) === 0; });
+});
+if (pctZeroVagas > 0.2) {
+insights.push(Math.round(pctZeroVagas * 100) + "% dos leads aceitam imóvel sem vaga. Verifique se há studios cadastrados na base — este é um segmento com demanda e ticket menor.");
+}
+if (d.vagas[0] > 0 && !temStudioZeroVagas) {
+insights.push("Há demanda por studios sem vaga, mas nenhum está cadastrado. Considere incluir esse perfil no inventário.");
+}
+
+if ((d.vagas[2] + d.vagas[3] + d.vagas[4]) / d.n > 0.6) insights.push("A maioria dos leads exige 2 ou mais vagas. Priorize lançamentos com esse perfil.");
+insightsRegioes(d.n).forEach(function (t) { insights.push(t); });
+insights = insights.slice(0, 6);
+var alertSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
+$("painel-lacunas").innerHTML = insights.length
+? insights.map(function (t) { return '<div class="insight">' + alertSvg + '<span>' + escHtml(t) + '</span></div>'; }).join("")
+: '<p class="note-text">Nenhuma lacuna crítica identificada até o momento.</p>';
+}
+
+function exportarPainelCsv() {
+var d = calcularPainel();
+if (!d.n) { toast("Sem dados para exportar", true); return; }
+var codArqP = CORRETOR ? CORRETOR.codigo : "VISITANTE";
+var linhas = ["Indicador;Valor"];
+linhas.push("Buscas realizadas;" + d.n);
+linhas.push("Media de compatíveis;" + d.media.toFixed(1).replace(".", ","));
+linhas.push("Buscas sem resultado;" + d.zero);
+linhas.push("Bairro mais buscado;" + d.topBairro);
+linhas.push("");
+linhas.push("Bairro;Buscas");
+d.bairros.forEach(function (b) { linhas.push(b[0] + ";" + b[1]); });
+linhas.push("");
+linhas.push("Faixa de preço;Buscas");
+d.faixaLabels.forEach(function (l, i) { linhas.push(l + ";" + d.faixas[i]); });
+linhas.push("");
+linhas.push("Vagas mínimas;Buscas");
+["0 vagas", "1 vaga", "2 vagas", "3 vagas", "4+ vagas"].forEach(function (l, i) { linhas.push(l + ";" + d.vagas[i]); });
+var blob = new Blob(["\uFEFF" + linhas.join("\r\n")], { type: "text/csv;charset=utf-8" });
+var a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "relatorio-demanda-" + codArqP + ".csv";
+document.body.appendChild(a);
+a.click();
+setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+function exportarCsv() {
+var arr = carregarHistorico();
+if (!arr.length) { toast("Nenhuma busca para exportar", true); return; }
+var codArq = CORRETOR ? CORRETOR.codigo : "VISITANTE";
+var cab = ["Data/Hora", "Cidade", "Regiao", "Bairros", "Area Minima (m2)", "Area Maxima (m2)", "Vagas Minimas", "Preco Maximo (R$)", "Qtd Resultados", "Empreendimentos"];
+var linhas = [cab.join(";")];
+arr.forEach(function (h) {
+var b = h.bairros === "Todos" ? "Todos" : (Array.isArray(h.bairros) ? h.bairros.join(", ") : String(h.bairros));
+var emps = Array.isArray(h.nomes_resultados) ? h.nomes_resultados.join(" | ") : "";
+var vMin = (h.vagas_minimas !== undefined && h.vagas_minimas !== null) ? h.vagas_minimas : 0;
+linhas.push([
+fmtDataCsv(h.data_hora),
+'"' + String(h.cidade || "").replace(/"/g, '""') + '"',
+'"' + String(h.regiao || "").replace(/"/g, '""') + '"',
+'"' + b.replace(/"/g, '""') + '"',
+h.area_min,
+h.area_max,
+vMin,
+h.preco_maximo,
+h.quantidade_resultados,
+'"' + emps.replace(/"/g, '""') + '"'
+].join(";"));
+});
+var blob = new Blob(["\uFEFF" + linhas.join("\r\n")], { type: "text/csv;charset=utf-8" });
+var a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "historico-qualificacoes-" + codArq + ".csv";
+document.body.appendChild(a);
+a.click();
+setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+function aplicarBuscaMeus() {
+var termo = filtroMeus.trim();
+var t = normTxt(termo);
+var lista = corretorEmps.filter(function (e) {
+if (!t) return true;
+return normTxt(e.nome).indexOf(t) !== -1 || normTxt(e.construtora).indexOf(t) !== -1 || normTxt(e.bairro).indexOf(t) !== -1;
+});
+var total = corretorEmps.length;
+$("meus-contador").textContent = t
+? lista.length + " de " + total + " empreendimentos"
+: total + " empreendimentos cadastrados";
+$("busca-vazia").hidden = !(t && lista.length === 0);
+if (t && lista.length === 0) $("busca-vazia-texto").textContent = "Nenhum empreendimento encontrado para '" + termo + "'.";
+return lista;
+}
+
+function iniciarEdicao(id) {
+var e = corretorEmps.filter(function (x) { return x.id === id; })[0];
+if (!e) return;
+editandoId = id;
+mostrar("cadastro");
+$("cad-titulo").textContent = "Editar Empreendimento";
+$("btn-salvar-emp").textContent = "Salvar alterações";
+$("btn-cancelar-edicao").hidden = false;
+resetarCadastro(true);
+$("f-nome").value = e.nome;
+$("f-construtora").value = e.construtora;
+$("f-bairro").value = e.bairro;
+$("f-regiao").value = e.regiao || "";
+$("f-cidade").value = e.cidade;
+$("f-uf").value = e.uf || "RJ";
+$("f-endereco").value = e.endereco || "";
+$("f-lazer").value = e.lazer;
+$("f-entrega").value = e.entrega;
+$("f-pf").value = String(e.comissaoPF).replace("%", "");
+$("f-pj").value = String(e.comissaoPJ).replace("%", "");
+$("f-situacao").value = e.situacao;
+fotoAtual = e.foto || null;
+$("f-preview").style.backgroundImage = fotoAtual ? 'url("' + fotoAtual + '")' : "";
+$("tipologias-box").innerHTML = "";
+tipCount = 0;
+e.tipologias.forEach(function (t) {
+addTipCard();
+var card = $("tipologias-box").lastElementChild;
+function setK(k, val) { card.querySelector('[data-k="' + k + '"]').value = val; }
+setK("nome", t.nome || "");
+setK("area", t.area);
+setK("dorm", t.dorm);
+setK("suites", t.suites);
+setK("vagas", t.vagas);
+setK("preco", t.preco);
+setK("outras", t.outras || "");
+card.querySelector('[data-k="varanda"]').checked = !!t.varanda;
+card.querySelector('[data-k="gourmet"]').checked = !!t.gourmet;
+});
+if (!e.tipologias.length) addTipCard();
+window.scrollTo(0, 0);
+}
+
+function cancelarEdicao() {
+editandoId = null;
+resetarCadastro();
+mostrar("meus");
+}
+
+function sugestao(tipo) {
+var base = paramsAtuais();
+var nova = JSON.parse(JSON.stringify(base));
+if (tipo === "preco") nova.preco = Math.round(base.preco * 1.2);
+if (tipo === "area") {
+nova.areaMin = Math.round(base.areaMin * 0.8);
+nova.areaMax = Math.round(base.areaMax * 1.2);
+}
+if (tipo === "bairros") {
+var extra = [];
+base.bairros.forEach(function (b) { (VIZINHOS[b] || []).forEach(function (v) { if (extra.indexOf(v) === -1) extra.push(v); }); });
+if (!base.bairros.length) { $("sug-resultado").textContent = "Nenhum bairro selecionado: todos já estão incluídos."; return; }
+nova.bairros = base.bairros.concat(extra.filter(function (v) { return base.bairros.indexOf(v) === -1; }));
+}
+var antes = filtrar(base).length;
+var depois = filtrar(nova).length;
+var adicionais = depois - antes;
+$("sug-resultado").textContent = adicionais > 0
+? "Com este ajuste apareceriam " + adicionais + " resultado(s) adicionais."
+: "Este ajuste não traz resultados adicionais.";
+if (adicionais > 0) {
+estado = nova;
+render();
+$("sug-resultado").textContent = "Ajuste aplicado: +" + adicionais + " resultado(s) adicionais.";
+}
+}
+
+function resumoTexto() {
+var lista = filtrar(paramsAtuais());
+var linhas = ["Match Imobiliário — Resumo do perfil", resumoPerfil(), "Lançamentos compatíveis: " + lista.length];
+lista.forEach(function (i) {
+linhas.push("- " + i.emp.nome + " (" + i.emp.bairro + "): " + i.t.dorm + " dorm, " + i.t.area + " m², " + fmtVagas(i.t.vagas) + ", a partir de " + fmtBRL(i.t.preco));
+});
+return linhas.join("\n");
+}
+
+function copiar(txt) {
+if (navigator.clipboard && navigator.clipboard.writeText) {
+navigator.clipboard.writeText(txt).then(function () { toast("Resumo copiado para a área de transferência."); }, function () { toast("Resumo pronto para copiar."); });
+} else {
+toast("Resumo pronto para copiar.");
+}
+}
+
+// Navegação e cadastro
+document.querySelectorAll(".nav-btn").forEach(function (b) {
+b.addEventListener("click", function () {
+if (b.getAttribute("data-nav") === "cadastro" && editandoId !== null) { editandoId = null; resetarCadastro(); }
+mostrar(b.getAttribute("data-nav"));
+});
+});
+$("btn-whats").addEventListener("click", enviarWhats);
+$("form-onboard").addEventListener("submit", function (e) { e.preventDefault(); confirmarCodigo(); });
+$("ob-visitante").addEventListener("click", entrarVisitante);
+$("ob-codigo").addEventListener("input", function () { $("ob-erro").hidden = true; });
+$("btn-sair").addEventListener("click", sairApp);
+$("btn-config").addEventListener("click", abrirConfig);
+$("btn-fechar-config").addEventListener("click", function () { $("modal-config").hidden = true; });
+$("btn-sair-config").addEventListener("click", sairApp);
+$("btn-limpar-tudo").addEventListener("click", limparTudo);
+$("btn-export-backup").addEventListener("click", exportarBackup);
+$("btn-import-backup").addEventListener("click", function () { $("file-backup").click(); });
+$("file-backup").addEventListener("change", function (e) { lerArquivoBackup(e.target.files && e.target.files[0]); });
+$("btn-imp-substituir").addEventListener("click", function () {
+if (!window.confirm("Substituir todos os dados atuais pelo backup?")) return;
+aplicarBackup("substituir");
+});
+$("btn-imp-mesclar").addEventListener("click", function () {
+if (!window.confirm("Mesclar o backup com os dados atuais?")) return;
+aplicarBackup("mesclar");
+});
+$("btn-imp-cancelar").addEventListener("click", function () {
+backupPendente = null;
+$("file-backup").value = "";
+$("modal-import").hidden = true;
+});
+$("btn-add-tip").addEventListener("click", addTipCard);
+$("btn-primeiro-cadastro").addEventListener("click", function () { mostrar("cadastro"); });
+$("tipologias-box").addEventListener("click", function (e) {
+var btn = e.target.closest(".tip-remove");
+if (!btn) return;
+var cards = $("tipologias-box").querySelectorAll(".tip-card");
+if (cards.length <= 1) { toast("Mantenha ao menos uma tipologia.", true); return; }
+btn.closest(".tip-card").remove();
+});
+$("f-foto").addEventListener("change", function (e) {
+lerArquivoFoto(e.target.files && e.target.files[0], function (data) {
+fotoAtual = data;
+$("f-preview").style.backgroundImage = data ? 'url("' + data + '")' : "";
+});
+});
+$("form-emp").addEventListener("submit", function (e) { e.preventDefault(); salvarEmpreendimento(); });
+$("lista-meus").addEventListener("click", function (e) {
+var edit = e.target.closest("[data-edit]");
+if (edit) { iniciarEdicao(parseInt(edit.getAttribute("data-edit"), 10)); return; }
+var btn = e.target.closest("[data-del]");
+if (!btn) return;
+var id = parseInt(btn.getAttribute("data-del"), 10);
+if (!window.confirm("Excluir este empreendimento?")) return;
+corretorEmps = corretorEmps.filter(function (x) { return x.id !== id; });
+salvarCorretor();
+recalcularLista();
+renderMeus();
+render();
+toast("Empreendimento excluído.");
+});
+$("busca-meus").addEventListener("input", function (e) {
+filtroMeus = e.target.value;
+renderMeus();
+});
+$("btn-limpar-busca").addEventListener("click", function () {
+filtroMeus = "";
+$("busca-meus").value = "";
+renderMeus();
+});
+$("btn-cancelar-edicao").addEventListener("click", cancelarEdicao);
+$("lista-historico").addEventListener("click", function (e) {
+var rep = e.target.closest("[data-rep]");
+if (rep) {
+var id = parseInt(rep.getAttribute("data-rep"), 10);
+var h = carregarHistorico().filter(function (x) { return x.id === id; })[0];
+if (h) repetirBusca(h);
+return;
+}
+var del = e.target.closest("[data-hdel]");
+if (del) {
+if (!window.confirm("Excluir esta busca do histórico?")) return;
+var hid = parseInt(del.getAttribute("data-hdel"), 10);
+salvarHistorico(carregarHistorico().filter(function (x) { return x.id !== hid; }));
+renderHistorico();
+toast("Busca excluída.");
+}
+});
+$("btn-export-csv").addEventListener("click", exportarCsv);
+$("btn-export-painel").addEventListener("click", exportarPainelCsv);
+$("btn-painel-busca").addEventListener("click", function () { mostrar("form"); });
+$("btn-primeira-busca").addEventListener("click", function () { mostrar("form"); });
+$("btn-limpar-historico").addEventListener("click", function () {
+if (!window.confirm("Apagar todo o histórico de buscas?")) return;
+salvarHistorico([]);
+renderHistorico();
+toast("Histórico limpo.");
+});
+
+// Máscara de moeda
+
+
+$("preco-max").addEventListener("input", function (e) {
+var v = parsePreco(e.target.value);
+e.target.value = v ? fmtBRL(v) : "";
+});
+
+// Eventos
+$("bairro-busca").addEventListener("input", function (e) {
+renderBairros(e.target.value);
+});
+$("sel-regiao").addEventListener("change", function (e) {
+estado.regiao = e.target.value;
+renderBairros($("bairro-busca").value);
+});
+$("sel-estado").addEventListener("change", function (e) {
+estado.uf = e.target.value;
+estado.cidade = "";
+estado.regiao = "";
+estado.bairros = [];
+renderLocalizacao();
+});
+$("sel-cidade").addEventListener("change", function (e) {
+estado.cidade = e.target.value;
+estado.regiao = "";
+estado.bairros = [];
+renderRegioes();
+renderBairros("");
+});
+$("btn-limpar-loc").addEventListener("click", function () {
+estado.uf = "";
+estado.cidade = "";
+estado.regiao = "";
+estado.bairros = [];
+$("bairro-busca").value = "";
+renderLocalizacao();
+toast("Filtros de localização limpos.");
+});
+$("btn-forcar").addEventListener("click", function () {
+toast("Atualizando o app...");
+var tarefas = [];
+if (window.caches && caches.keys) {
+tarefas.push(caches.keys().then(function (keys) {
+return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+}));
+}
+if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+tarefas.push(navigator.serviceWorker.getRegistrations().then(function (regs) {
+return Promise.all(regs.map(function (r) { return r.unregister(); }));
+}));
+}
+Promise.all(tarefas).then(function () { window.location.reload(true); }, function () { window.location.reload(true); });
+});
+$("bairro-busca").addEventListener("change", function (e) {
+var val = e.target.value.trim();
+if (BAIRROS.indexOf(val) !== -1 && estado.bairros.indexOf(val) === -1) {
+estado.bairros.push(val);
+renderBairros(e.target.value);
+}
+});
+$("bairros-checks").addEventListener("change", function (e) {
+if (e.target.type !== "checkbox") return;
+var v = e.target.value;
+if (e.target.checked) { if (estado.bairros.indexOf(v) === -1) estado.bairros.push(v); }
+else { estado.bairros = estado.bairros.filter(function (b) { return b !== v; }); }
+$("bairros-resumo").textContent = estado.bairros.length
+? estado.bairros.length + " bairro(s) selecionado(s): " + estado.bairros.join(", ")
+: "Nenhum bairro selecionado: considerando todos.";
+});
+document.querySelectorAll('input[name="vagas"]').forEach(function (r) {
+r.addEventListener("change", atualizarRadios);
+});
+$("btn-buscar").addEventListener("click", buscar);
+$("btn-nova-busca").addEventListener("click", function () { mostrar("form"); });
+$("sug-preco").addEventListener("click", function () { sugestao("preco"); });
+$("sug-area").addEventListener("click", function () { sugestao("area"); });
+$("sug-bairros").addEventListener("click", function () { sugestao("bairros"); });
+$("btn-copiar").addEventListener("click", function () { copiar(resumoTexto()); });
+$("btn-salvar").addEventListener("click", function () {
+try { localStorage.setItem("match-imobiliario-perfil", JSON.stringify(estado)); toast("Perfil salvo neste navegador."); }
+catch (err) { toast("Não foi possível salvar o perfil."); }
+});
+$("btn-detalhes").addEventListener("click", function () { toast(resumoPerfil()); });
+$("btn-print").addEventListener("click", function () { window.print(); });
+$("btn-reset").addEventListener("click", function () {
+estado = JSON.parse(JSON.stringify(PADRAO));
+estado.uf = "RJ";
+estado.cidade = "Rio de Janeiro";
+renderLocalizacao();
+$("area-min").value = 40;
+$("area-max").value = 200;
+$("preco-max").value = fmtBRL(800000);
+document.querySelector('input[name="vagas"][value="2"]').checked = true;
+atualizarRadios();
+renderBairros("");
+$("bairro-busca").value = "";
+toast("Campos restaurados para o padrão.");
+});
+
+// Inicialização
+UFS.forEach(function (uf) {
+var o = document.createElement("option");
+o.value = uf; o.textContent = uf;
+if (uf === "RJ") o.selected = true;
+$("f-uf").appendChild(o);
+});
+$("preco-max").value = fmtBRL(800000);
+estado.uf = "RJ";
+estado.cidade = "Rio de Janeiro";
+renderLocalizacao();
+(function initPwa() {
+var modoStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+var deferred = null;
+var banner = $("pwa-banner");
+var ocultoAte = parseInt(lerLS("match_imobiliario_pwa_adiado") || "0", 10);
+if (!modoStandalone) {
+window.addEventListener("beforeinstallprompt", function (e) {
+e.preventDefault();
+deferred = e;
+if (Date.now() > ocultoAte) banner.hidden = false;
+});
+}
+$("btn-instalar").addEventListener("click", function () {
+if (!deferred) return;
+deferred.prompt();
+deferred.userChoice.then(function () { deferred = null; banner.hidden = true; });
+});
+$("btn-agora-nao").addEventListener("click", function () {
+banner.hidden = true;
+gravarLS("match_imobiliario_pwa_adiado", String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+});
+var status = $("pwa-status");
+try {
+if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
+var swSrc = "self.addEventListener('install',function(e){e.waitUntil(caches.open('mi-shell-v1').then(function(c){return c.add(location.href).catch(function(){});}).then(function(){return self.skipWaiting();}));});" +
+"self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim());});" +
+"self.addEventListener('fetch',function(e){if(e.request.method!=='GET')return;var u=new URL(e.request.url);if(u.origin!==self.location.origin)return;" +
+"e.respondWith(caches.match(e.request).then(function(r){if(r&&u.pathname===new URL(self.location.href).pathname)return r;" +
+"return fetch(e.request).then(function(n){var copia=n.clone();caches.open('mi-shell-v1').then(function(c){c.put(e.request,copia);}).catch(function(){});return n;})" +
+".catch(function(){return caches.match(e.request).then(function(x){return x||caches.match(location.href);});});}));});";
+var blobUrl = URL.createObjectURL(new Blob([swSrc], { type: "text/javascript" }));
+navigator.serviceWorker.register(blobUrl).then(function () {
+status.textContent = "Disponível offline";
+}, function () {
+status.textContent = "Modo online";
+});
+} else {
+status.textContent = "Modo online";
+}
+} catch (err) {
+status.textContent = "Modo online";
+}
+})();
+renderBairros("");
+atualizarRadios();
+lerFormulario();
+render();
+resetarCadastro();
+var salvo = lerCorretorSalvo();
+if (salvo) {
+definirCorretor(salvo);
+entrarNoApp();
+} else {
+recalcularLista();
+mostrarOnboard();
+}
+})();
+</script>
+</body>
+</html>
